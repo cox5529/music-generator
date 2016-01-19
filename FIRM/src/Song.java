@@ -16,7 +16,8 @@ public class Song {
 	/**
 	 * Creates a song with the given number of tracks.
 	 * 
-	 * @param speed The speed of the song. 4 is relatively fast.
+	 * @param speed
+	 *            The speed of the song. 4 is relatively fast.
 	 * @param tracks
 	 *            Number of tracks in the song
 	 */
@@ -31,6 +32,17 @@ public class Song {
 		for(int i = 0; i < tracks; i++) {
 			this.tracks[i] = seq.createTrack();
 		}
+	}
+	
+	/**
+	 * Constructs a Song object based on the given sequence.
+	 * 
+	 * @param seq
+	 *            The sequence to create the Song object from.
+	 */
+	public Song(Sequence seq) {
+		this.seq = seq;
+		this.tracks = seq.getTracks();
 	}
 	
 	private MidiEvent createNoteEvent(int com, int key, int vel, long tick) {
@@ -136,6 +148,25 @@ public class Song {
 	public void createNote(Track t, int key, int vel, long tick, long dur) {
 		t.add(createNoteEvent(ShortMessage.NOTE_ON, key, vel, tick));
 		t.add(createNoteEvent(ShortMessage.NOTE_OFF, key, vel, tick + dur));
+	}
+	
+	/**
+	 * Generates a Song object based on the .mid file given.
+	 * 
+	 * @param f
+	 *            The .mid file to read from
+	 * @return A song object created from the imported midi file
+	 */
+	public static Song importMidi(File f) {
+		try {
+			Sequence s = MidiSystem.getSequence(f);
+			return new Song(s);
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 }
