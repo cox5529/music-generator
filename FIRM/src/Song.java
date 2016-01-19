@@ -23,7 +23,7 @@ public class Song {
 	 */
 	public Song(int tracks, int speed) {
 		try {
-			seq = new Sequence(Sequence.PPQ, speed, tracks);
+			this.seq = new Sequence(Sequence.PPQ, speed, tracks);
 		} catch(InvalidMidiDataException e) {
 			e.printStackTrace();
 		}
@@ -43,6 +43,52 @@ public class Song {
 	public Song(Sequence seq) {
 		this.seq = seq;
 		this.tracks = seq.getTracks();
+	}
+	
+	/**
+	 * Constructs a new Song object based on the given Song object. Keeps instrumentation from previous tracks.
+	 * 
+	 * @param s
+	 *            The Song to base the new Song on.
+	 */
+	public Song(Song s) {
+		Sequence temp = s.getSequence();
+		try {
+			this.seq = new Sequence(temp.getDivisionType(), temp.getResolution(), temp.getTracks().length);
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		}
+		this.tracks = new Track[temp.getTracks().length];
+		for(int i = 0; i < this.tracks.length; i++) {
+			this.tracks[i] = seq.createTrack();
+		}
+	}
+	
+	/**
+	 * Changes the instrument of the given Track object.
+	 * 
+	 * @param t
+	 *            The Track to change the instrument of.
+	 * @param instrument
+	 *            The instrument number to change the track to.
+	 */
+	public void changeInstrument(Track t, int instrument) {
+		ShortMessage sm = new ShortMessage();
+		try {
+			sm.setMessage(ShortMessage.PROGRAM_CHANGE, 0, instrument, 0);
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		}
+		t.add(new MidiEvent(sm, 0));
+	}
+	
+	/**
+	 * Gets the Sequence object for this song.
+	 * 
+	 * @return The Sequence object for this song.
+	 */
+	public Sequence getSequence() {
+		return seq;
 	}
 	
 	private MidiEvent createNoteEvent(int com, int key, int vel, long tick) {
