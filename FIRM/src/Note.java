@@ -9,7 +9,6 @@ public class Note {
 	
 	private int pitch;
 	private long duration;
-	private Note follow;
 	
 	/**
 	 * Constructs a Note object.
@@ -22,25 +21,6 @@ public class Note {
 	public Note(int pitch, long duration) {
 		this.pitch = pitch;
 		this.duration = duration;
-	}
-	
-	/**
-	 * Sets the note which follows this note.
-	 * 
-	 * @param follow
-	 *            The Note object which follows this Note.
-	 */
-	public void setFollow(Note follow) {
-		this.follow = follow;
-	}
-	
-	/**
-	 * Gets the Note which follows this Note.
-	 * 
-	 * @return The Note which follows this Note.
-	 */
-	public Note getFollow() {
-		return follow;
 	}
 	
 	/**
