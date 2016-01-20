@@ -1,4 +1,10 @@
 
+/**
+ * Object used to store Notes within songs.
+ * 
+ * @author Brandon Cox
+ * 		
+ */
 public class Note {
 	
 	private int pitch;
@@ -12,12 +18,19 @@ public class Note {
 	 *            The pitch of the Note
 	 * @param duration
 	 *            The duration of the Note
-	 * @param follow
-	 *            The Note which follows the Note. Used when generating songs.
 	 */
 	public Note(int pitch, long duration, Note follow) {
 		this.pitch = pitch;
 		this.duration = duration;
+	}
+	
+	/**
+	 * Sets the note which follows this note.
+	 * 
+	 * @param follow
+	 *            The Note object which follows this Note.
+	 */
+	public void setFollow(Note follow) {
 		this.follow = follow;
 	}
 	
