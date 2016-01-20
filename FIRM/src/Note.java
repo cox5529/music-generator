@@ -19,7 +19,7 @@ public class Note {
 	 * @param duration
 	 *            The duration of the Note
 	 */
-	public Note(int pitch, long duration, Note follow) {
+	public Note(int pitch, long duration) {
 		this.pitch = pitch;
 		this.duration = duration;
 	}
