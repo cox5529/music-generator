@@ -196,23 +196,6 @@ public class Song {
 		t.add(createNoteEvent(ShortMessage.NOTE_OFF, key, vel, tick + dur));
 	}
 	
-	/**
-	 * Generates a Song object based on the .mid file given.
-	 * 
-	 * @param f
-	 *            The .mid file to read from
-	 * @return A song object created from the imported midi file
-	 */
-	public static Song importMidi(File f) {
-		try {
-			Sequence s = MidiSystem.getSequence(f);
-			return new Song(s);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+
 	
 }
