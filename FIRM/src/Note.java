@@ -8,7 +8,7 @@
 public class Note {
 	
 	private int pitch;
-	private long duration;
+	private int duration;
 	
 	/**
 	 * Constructs a Note object.
@@ -18,7 +18,7 @@ public class Note {
 	 * @param duration
 	 *            The duration of the Note
 	 */
-	public Note(int pitch, long duration) {
+	public Note(int pitch, int duration) {
 		this.pitch = pitch;
 		this.duration = duration;
 	}
@@ -37,7 +37,7 @@ public class Note {
 	 * 
 	 * @return The duration of this Note
 	 */
-	public long getDuration() {
+	public int getDuration() {
 		return duration;
 	}
 	
