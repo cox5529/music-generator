@@ -2,6 +2,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
@@ -19,7 +22,6 @@ import javax.sound.midi.Track;
 public class Base {
 	
 	private ArrayList<Note> notes;
-	private HashMap<Integer, Duration> noteFollow;
 	private HashMap<Integer, Pitch> pitchFollow;
 	
 	/**
@@ -31,7 +33,6 @@ public class Base {
 	public Base(Song... songs) {
 		notes = new ArrayList<Note>();
 		pitchFollow = new HashMap<Integer, Pitch>();
-		noteFollow = new HashMap<Integer, Duration>();
 		for(int i = 0; i < songs.length; i++) { // Loop through songs
 			Sequence s = songs[i].getSequence();
 			Track[] t = s.getTracks();
@@ -44,14 +45,13 @@ public class Base {
 						// data1 = key
 						// data2 = vel
 						if(sm.getCommand() == ShortMessage.NOTE_ON) {
-							long dur = -1;
+							int dur = -1;
 							for(int l = k + 1; l < t[j].size(); l++) { // loop through more midievents
 								MidiEvent me1 = t[j].get(l);
 								if(me1.getMessage() instanceof ShortMessage) {
 									ShortMessage end = (ShortMessage) me1.getMessage();
 									if(end.getCommand() == ShortMessage.NOTE_ON && (end.getData2() == 0 && end.getData1() == sm.getData1())) {
-										dur = me1.getTick() - me.getTick();
-										System.out.println(dur);
+										dur = (int) (me1.getTick() - me.getTick());
 										break;
 									}
 								}
@@ -60,16 +60,13 @@ public class Base {
 							notes.add(new Note(pitch, dur));
 							
 							if(noteIndex != 0) {
-								int roundDur = s.getResolution() / 24; // integer division could be an issue
 								if(pitchFollow.containsKey(pitch)) {
-									pitchFollow.get(notes.get(noteIndex - 1).getPitch()).addFollow(pitch);
+									int index = notes.get(noteIndex - 1).getPitch();
+									Pitch p = pitchFollow.get(index);
+									p.addFollow(pitch);
+									pitchFollow.put(index, p);
 								} else {
 									pitchFollow.put(pitch, new Pitch(pitch));
-								}
-								if(noteFollow.containsKey(roundDur)) {
-									noteFollow.get(notes.get(noteIndex - 1).getDuration()).addFollow(roundDur);
-								} else {
-									noteFollow.put(roundDur, new Duration(roundDur));
 								}
 							}
 							noteIndex++;
@@ -78,6 +75,49 @@ public class Base {
 				}
 			}
 		}
+	}
+	
+	public Song generateSong(long length, int speed) {
+		Song s = new Song(1, speed);
+		long dur = 0;
+		int notePitch = (int) pitchFollow.keySet().toArray()[0];
+		int noteDur;
+		while(dur < length) {
+			Random r = new Random(System.nanoTime());
+			int random = r.nextInt(100);
+			if(random < 100) {
+				noteDur = Main.SIXTEENTH_NOTE_DURATION;
+			} else if(random < 70) {
+				noteDur = Main.EIGHTH_NOTE_DURATION;
+			} else if(random < 80) {
+				noteDur = Main.QUARTER_NOTE_DURATION;
+			} else if(random < 90) {
+				noteDur = Main.HALF_NOTE_DURATION;
+			} else {
+				noteDur = Main.WHOLE_NOTE_DURATION;
+			}
+			s.createNote(s.getTracks()[0], notePitch, 127, dur, dur + noteDur);
+			dur += noteDur;
+			System.out.println(notePitch);
+			Pitch p = pitchFollow.get(notePitch);
+			System.out.println(pitchFollow.containsKey(notePitch));
+			HashMap<Integer, Double> pct = p.calcPercentage();
+			for(int i: pct.keySet()) {
+				//System.out.println(i);
+			}
+			double rand = Math.random();
+			Iterator<Entry<Integer, Double>> it = pct.entrySet().iterator();
+			while(it.hasNext()) {
+				Entry<Integer, Double> pair = (Entry<Integer, Double>) it.next();
+				// System.out.println(pair.getKey());
+				// System.out.println(pair.getValue());
+				if(rand <= (Double) pair.getValue()) {
+					notePitch = (Integer) pair.getKey();
+					break;
+				}
+			}
+		}
+		return s;
 	}
 	
 	/**

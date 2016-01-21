@@ -52,9 +52,9 @@ public class Pitch {
 		HashMap<Integer, Integer> count = new HashMap<Integer, Integer>();
 		for(int i = 0; i < follow.size(); i++) {
 			if(count.containsKey(i)) {
-				count.put(i, count.get(i) + 1);
+				count.put(follow.get(i), count.get(i) + 1);
 			} else {
-				count.put(i, 1);
+				count.put(follow.get(i), 1);
 			}
 		}
 		// get percentages
@@ -65,13 +65,13 @@ public class Pitch {
 		}
 		for(int i = 0; i < count.size(); i++) {
 			int key = (int) count.keySet().toArray()[i];
+			System.out.println(key);
 			pct.put(key, (count.get(key) + 0.0) / sum);
 		}
 		double s = 0;
-		Integer[] keys = (Integer[]) pct.keySet().toArray();
 		for(int i = 0; i < pct.size(); i++) {
-			s += pct.get(keys[i]);
-			pct.put(keys[i], s);
+			s += pct.get((Integer) pct.keySet().toArray()[i]);
+			pct.put((Integer) pct.keySet().toArray()[i], s);
 		}
 		// return
 		return pct;
