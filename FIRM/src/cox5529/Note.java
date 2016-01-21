@@ -1,3 +1,4 @@
+package cox5529;
 
 /**
  * Object used to store Notes within songs.

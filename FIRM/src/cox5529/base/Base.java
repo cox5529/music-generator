@@ -1,3 +1,4 @@
+package cox5529.base;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +13,11 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
+
+import cox5529.Main;
+import cox5529.Note;
+import cox5529.Pitch;
+import cox5529.Song;
 
 /**
  * Class used to store the Base songs.
@@ -85,7 +91,7 @@ public class Base {
 		while(dur < length) {
 			Random r = new Random(System.nanoTime());
 			int random = r.nextInt(100);
-			if(random < 100) {
+			if(random < 50) {
 				noteDur = Main.SIXTEENTH_NOTE_DURATION;
 			} else if(random < 70) {
 				noteDur = Main.EIGHTH_NOTE_DURATION;

@@ -1,5 +1,7 @@
+package cox5529;
 import java.io.File;
-import java.util.Random;
+
+import cox5529.base.Base;
 
 /**
  * Main class for music generator.
@@ -41,27 +43,12 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		Song s = new Song(1, 6);
-		Random r = new Random(System.nanoTime());
-		int tick = 0;
-		int[] notes = Song.generateMinorOctave(60);
-		while(tick < 2048) {
-			int rand = r.nextInt(100);
-			int dur = 0;
-			if(rand < 50) {
-				dur = SIXTEENTH_NOTE_DURATION;
-			} else if(rand < 70) {
-				dur = EIGHTH_NOTE_DURATION;
-			} else if(rand < 90) {
-				dur = QUARTER_NOTE_DURATION;
-			} else if(rand < 95) {
-				dur = HALF_NOTE_DURATION;
-			} else {
-				dur = WHOLE_NOTE_DURATION;
-			}
-			s.createNote(s.getTracks()[0], notes[r.nextInt(notes.length)], 127, tick, dur);
-			tick += dur;
-		}
-		s.write(new File("out.mid"));
+		Song s = Base.importMidi(new File("smb1-Theme.mid"));
+		Song s1 = Base.importMidi(new File("starwars.mid"));
+		Base b = new Base(s, s1);
+		b.generateSong(1024, 4).write(new File("out.mid"));
 	}
 }
+
+// Read probability of a note of a specific type and pitch following another note
+// Used Math.random() to generate a song based on that
