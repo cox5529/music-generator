@@ -83,6 +83,12 @@ public class Base {
 		}
 	}
 	
+	/**
+	 * Generates a song based on the given parameters.
+	 * @param length The length of the song in ticks
+	 * @param speed The speed of the song.
+	 * @return The song that was created.
+	 */
 	public Song generateSong(long length, int speed) {
 		Song s = new Song(1, speed);
 		long dur = 0;
