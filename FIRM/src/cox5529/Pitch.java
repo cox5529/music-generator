@@ -66,7 +66,6 @@ public class Pitch {
 		}
 		for(int i = 0; i < count.size(); i++) {
 			int key = (int) count.keySet().toArray()[i];
-			System.out.println(key);
 			pct.put(key, (count.get(key) + 0.0) / sum);
 		}
 		double s = 0;

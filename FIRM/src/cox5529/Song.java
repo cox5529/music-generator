@@ -1,4 +1,5 @@
 package cox5529;
+
 import javax.sound.midi.*;
 import java.io.File;
 import java.io.IOException;
@@ -92,7 +93,20 @@ public class Song {
 		return seq;
 	}
 	
-	private MidiEvent createNoteEvent(int com, int key, int vel, long tick) {
+	/**
+	 * Creates a MidiEvent to play a note.
+	 * 
+	 * @param com
+	 *            The command for the event.
+	 * @param key
+	 *            The key to be played.
+	 * @param vel
+	 *            The velocity to play the note at.
+	 * @param tick
+	 *            The tick to place the event at.
+	 * @return
+	 */
+	public static MidiEvent createNoteEvent(int com, int key, int vel, long tick) {
 		ShortMessage mess = new ShortMessage();
 		try {
 			mess.setMessage(com, 0, key, vel);
@@ -196,7 +210,5 @@ public class Song {
 		t.add(createNoteEvent(ShortMessage.NOTE_ON, key, vel, tick));
 		t.add(createNoteEvent(ShortMessage.NOTE_OFF, key, vel, tick + dur));
 	}
-	
-
 	
 }

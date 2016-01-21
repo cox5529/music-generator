@@ -43,9 +43,9 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		Song s = Base.importMidi(new File("smb1-Theme.mid"));
-		Song s1 = Base.importMidi(new File("starwars.mid"));
-		Base b = new Base(s, s1);
+		//Song s = Base.importMidi(new File("smb1-Theme.mid"));
+		Song s = Base.importMidi(new File("starwars.mid"));
+		Base b = new Base(s);
 		b.generateSong(1024, 4).write(new File("out.mid"));
 	}
 }
