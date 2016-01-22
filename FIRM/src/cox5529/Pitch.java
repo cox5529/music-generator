@@ -1,9 +1,10 @@
 package cox5529;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * A class used to store the occurences of a given
+ * A class used to store the occurrences of a given pitch within a song.
  * 
  * @author Brandon Cox
  * 		
@@ -52,10 +53,11 @@ public class Pitch {
 		// count all of specific duration
 		HashMap<Integer, Integer> count = new HashMap<Integer, Integer>();
 		for(int i = 0; i < follow.size(); i++) {
-			if(count.containsKey(i)) {
-				count.put(follow.get(i), count.get(i) + 1);
+			int index = follow.get(i);
+			if(count.containsKey(index)) {
+				count.put(index, count.get(index) + 1);
 			} else {
-				count.put(follow.get(i), 1);
+				count.put(index, 1);
 			}
 		}
 		// get percentages
