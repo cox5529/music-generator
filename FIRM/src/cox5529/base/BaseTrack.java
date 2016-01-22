@@ -3,10 +3,9 @@ package cox5529.base;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Map.Entry;
+import java.util.Random;
 
-import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
@@ -21,6 +20,7 @@ public class BaseTrack {
 	private ArrayList<Note> notes;
 	private HashMap<Integer, Pitch> pitchFollow;
 	private int instrument;
+	private int channel;
 	
 	public BaseTrack(Track t) {
 		notes = new ArrayList<Note>();
@@ -59,6 +59,9 @@ public class BaseTrack {
 					noteIndex++;
 				} else if(sm.getCommand() == ShortMessage.PROGRAM_CHANGE) {
 					instrument = sm.getData1();
+					channel = sm.getChannel();
+					System.out.println(instrument);
+					System.out.println(channel);
 				}
 			}
 		}
@@ -79,13 +82,7 @@ public class BaseTrack {
 		long dur = 0;
 		int notePitch = (int) pitchFollow.keySet().toArray()[0];
 		int noteDur;
-		ShortMessage sm = new ShortMessage();
-		try {
-			sm.setMessage(ShortMessage.PROGRAM_CHANGE, 0, instrument, 0);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
-		t.add(new MidiEvent(sm, 0));
+		t.add(Song.createNoteEvent(ShortMessage.PROGRAM_CHANGE, channel, instrument, 0));
 		while(dur < length) {
 			Random r = new Random(System.nanoTime());
 			int random = r.nextInt(100);
@@ -100,8 +97,8 @@ public class BaseTrack {
 			} else {
 				noteDur = Main.WHOLE_NOTE_DURATION;
 			}
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, notePitch, 127, dur));
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, notePitch, 127, dur + noteDur));
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, 127, dur));
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, channel, notePitch, 127, dur + noteDur));
 			dur += noteDur;
 			Pitch p = pitchFollow.get(notePitch);
 			HashMap<Integer, Double> pct = p.calcPercentage();

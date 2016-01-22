@@ -117,6 +117,31 @@ public class Song {
 	}
 	
 	/**
+	 * Creates a MidiEvent to play a note.
+	 * 
+	 * @param com
+	 *            The command for the event.
+	 * @param channel
+	 *            The channel to play the note on.
+	 * @param key
+	 *            The key to be played.
+	 * @param vel
+	 *            The velocity to play the note at.
+	 * @param tick
+	 *            The tick to place the event at.
+	 * @return
+	 */
+	public static MidiEvent createNoteEvent(int com, int channel, int key, int vel, long tick) {
+		ShortMessage mess = new ShortMessage();
+		try {
+			mess.setMessage(com, channel, key, vel);
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		}
+		return new MidiEvent(mess, tick);
+	}
+	
+	/**
 	 * Writes the song to the specified file.
 	 * 
 	 * @param out
