@@ -21,18 +21,21 @@ public class BaseTrack {
 	private HashMap<Integer, Pitch> pitchFollow;
 	private int instrument;
 	private int channel;
+	private int fixedVel;
 	
 	public BaseTrack(Track t) {
 		notes = new ArrayList<Note>();
 		pitchFollow = new HashMap<Integer, Pitch>();
 		int noteIndex = 0;
+		int sumOfVel = 0;
 		for(int k = 0; k < t.size(); k++) { // loop through midiEvents
 			MidiEvent me = t.get(k);
 			if(me.getMessage() instanceof ShortMessage) {
 				ShortMessage sm = (ShortMessage) me.getMessage();
 				// data1 = key
 				// data2 = vel
-				if(sm.getCommand() == ShortMessage.NOTE_ON) {
+				if(sm.getCommand() == ShortMessage.NOTE_ON && sm.getData2() != 0) {
+					sumOfVel += sm.getData2();
 					int dur = -1;
 					for(int l = k + 1; l < t.size(); l++) { // loop through more midievents
 						MidiEvent me1 = t.get(l);
@@ -65,6 +68,8 @@ public class BaseTrack {
 				}
 			}
 		}
+		if(noteIndex != 0)
+			fixedVel = sumOfVel / noteIndex;
 	}
 	
 	/**
@@ -97,8 +102,8 @@ public class BaseTrack {
 			} else {
 				noteDur = Main.WHOLE_NOTE_DURATION;
 			}
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, 127, dur));
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, channel, notePitch, 127, dur + noteDur));
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, fixedVel, dur));
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, channel, notePitch, fixedVel, dur + noteDur));
 			dur += noteDur;
 			Pitch p = pitchFollow.get(notePitch);
 			HashMap<Integer, Double> pct = p.calcPercentage();
