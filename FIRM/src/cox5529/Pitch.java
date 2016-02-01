@@ -11,18 +11,19 @@ import java.util.HashMap;
  */
 public class Pitch {
 	
-	private int p;
+	private ArrayList<Integer> p;
 	private ArrayList<Integer> follow;
 	
 	/**
-	 * Constructs a Pitch object based on a given pitch id.
+	 * Constructs a Pitch object based on a given array pitch ids.
 	 * 
 	 * @param p
-	 *            The pitch id.
+	 *            The pitch ids.
 	 */
-	public Pitch(int p) {
+	public Pitch(ArrayList<Integer> p, int fol) {
 		this.p = p;
 		this.follow = new ArrayList<Integer>();
+		follow.add(fol);
 	}
 	
 	/**
@@ -36,11 +37,11 @@ public class Pitch {
 	}
 	
 	/**
-	 * Gets the pitch.
+	 * Gets the pitch array.
 	 * 
-	 * @return The pitch.
+	 * @return The pitch array.
 	 */
-	public int getPitch() {
+	public ArrayList<Integer> getPitch() {
 		return p;
 	}
 	

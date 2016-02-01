@@ -56,7 +56,7 @@ public class Duration {
 			}
 		}
 		// get percentages
-		HashMap<Integer, Double> pct = new HashMap<Integer, Double>();
+		HashMap<Integer, Double> pct = new HashMap<Integer, Double>(); // follow with this note x percent of the time
 		int sum = 0;
 		for(int i: count.values()) {
 			sum += i;
@@ -66,8 +66,8 @@ public class Duration {
 			pct.put(key, (count.get(key) + 0.0) / sum);
 		}
 		double s = 0;
-		for(int i = 0; i<pct.size(); i++){
-			s+=pct.get((Integer) pct.keySet().toArray()[i]);
+		for(int i = 0; i < pct.size(); i++) {
+			s += pct.get((Integer) pct.keySet().toArray()[i]);
 			pct.put((Integer) pct.keySet().toArray()[i], s);
 		}
 		return pct;

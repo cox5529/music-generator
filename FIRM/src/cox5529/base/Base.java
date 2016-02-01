@@ -20,6 +20,7 @@ import cox5529.Song;
 public class Base {
 	
 	private ArrayList<BaseTrack> bases;
+	private int resolution;
 	
 	/**
 	 * Creates a list of every note in the given songs. Creates the basis of the algorithm to compose songs.
@@ -27,20 +28,26 @@ public class Base {
 	 * @param songs
 	 *            The songs to create the base from.
 	 */
-	public Base(Song song) {
+	public Base(int depth, Song... songs) {
 		bases = new ArrayList<BaseTrack>();
-		Sequence s = song.getSequence();
-		Track[] t = s.getTracks();
+		Sequence s;
+		try {
+			s = new Sequence(Sequence.PPQ, songs[0].getSequence().getResolution());
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		}
+		resolution = songs[0].getSequence().getResolution();
+		Track[] t = songs[0].getSequence().getTracks(); // combine all tracks before generating
 		for(int j = 0; j < t.length; j++) { // loop through tracks
-			bases.add(new BaseTrack(t[j]));
+			bases.add(new BaseTrack(t[j], depth));
 		}
 	}
 	
-	public Song generateSong(int length, int speed) {
-		Song s = new Song(bases.size(), speed);
+	public Song generateSong(int length, int depth) {
+		Song s = new Song(bases.size(), resolution);
 		Track[] tracks = s.getTracks();
 		for(int i = 0; i < tracks.length; i++) {
-			tracks[i] = bases.get(i).generateTrack(tracks[i], length);
+			tracks[i] = bases.get(i).generateTrack(tracks[i], length, depth);
 		}
 		return s;
 	}
