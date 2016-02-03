@@ -8,6 +8,7 @@ import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
@@ -87,14 +88,20 @@ public class Base {
 	 * @return The generated song.
 	 */
 	public Song generateSong(int length, int depth) {
-		Song s = new Song(bases.size(), resolution);
-		Track[] tracks = s.getTracks();
-		for(int i = 0; i < tracks.length; i++) {
-			tracks[i] = bases.get(i).generateTrack(tracks[i], length, depth);
+		Sequence s = null;
+		try {
+			s = new Sequence(Sequence.PPQ, resolution);
+			s.createTrack();
+			s.createTrack();
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
 		}
+		Track[] tracks = s.getTracks();
+		tracks[0] = BaseTrack.generateMetaTrack(tracks[0], 4, 4);
+		tracks[1] = bases.get(0).generateTrack(tracks[1], length, depth);
 		System.out.println(tracks.length);
-		System.out.println(s.getSequence().getResolution());
-		return s;
+		System.out.println(s.getResolution());
+		return new Song(s);
 	}
 	
 	/**

@@ -122,17 +122,12 @@ public class BaseTrack {
 		int measureIndex = 1;
 		int notePitch = notePitchKey.get(0);
 		int noteDur = measure[0];
-		MetaMessage timeSig = new MetaMessage();
-		try {
-			timeSig.setMessage(MetaMessage.META, new byte[]{0x58, 0x04, 0x04}, 3);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
+		
 		t.add(Song.createNoteEvent(ShortMessage.PROGRAM_CHANGE, channel, instrument, 0));
 		while(dur < length) {
 			System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
 			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, 127, dur));
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, 0, dur + noteDur));
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, channel, notePitch, 0, dur + noteDur));
 			double rand = Math.random();
 			noteDur = measure[measureIndex];
 			measureIndex++;
@@ -165,6 +160,35 @@ public class BaseTrack {
 			
 		}
 		System.out.println(t.ticks());
+		return t;
+	}
+	
+	public static Track generateMetaTrack(Track t, int tsNum, int tsDen) {
+		// set time signature
+		MetaMessage timeSig = new MetaMessage();
+		try {
+			timeSig.setMessage(0x58, new byte[] { 0x04, 0x04, 0x18, 0x08 }, 4);
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		}
+		t.add(new MidiEvent(timeSig, 0));
+		
+		// set tempo
+		final int TEMPO = 0x51;
+		long tick = 0;
+		int tempoInMPQ = 0xB4D84;
+		byte[] data = new byte[3];
+		data[0] = (byte) ((tempoInMPQ >> 16) & 0xFF);
+		data[1] = (byte) ((tempoInMPQ >> 8) & 0xFF);
+		data[2] = (byte) (tempoInMPQ & 0xFF);
+		MetaMessage tempo = new MetaMessage();
+		try {
+			tempo.setMessage(TEMPO, data, data.length);
+			MidiEvent me = new MidiEvent(tempo, tick);
+			t.add(me);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		return t;
 	}
 }
