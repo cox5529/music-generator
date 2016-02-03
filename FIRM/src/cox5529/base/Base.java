@@ -38,14 +38,12 @@ public class Base {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		resolution = 24;
+		resolution = songs[0].getSequence().getResolution();
 		Track end = s.createTrack();
 		long time = 0;
 		for(int i = 0; i < songs.length; i++) { // this just combines all of the tracks of each song into a single track
-			System.out.println("Instantiating song...");
 			Track[] tracks = songs[i].getTracks();
 			for(int j = 0; j < tracks.length; j++) {
-				System.out.println("Instantiating track...");
 				MidiEvent[] events = new MidiEvent[tracks[j].size()];
 				for(int k = 0; k < events.length; k++) {
 					events[k] = tracks[j].get(k);
@@ -70,14 +68,13 @@ public class Base {
 								time += dur;
 								toAdd = new MidiEvent(last, time);
 								end.add(toAdd);
-								System.out.print(" "+sm.getData1());
 							}
 						}
 					}
 				}
 			}
 		}
-		bases.add(new BaseTrack(end, depth));
+		bases.add(new BaseTrack(end, depth, resolution));
 	}
 	
 	/**

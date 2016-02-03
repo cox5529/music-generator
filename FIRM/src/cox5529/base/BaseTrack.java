@@ -5,27 +5,48 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
+import cox5529.Measure;
 import cox5529.Note;
 import cox5529.Pitch;
 import cox5529.Song;
 
+/**
+ * An object used to store information used when generating songs.
+ * 
+ * @author Brandon Cox
+ * 		
+ */
 public class BaseTrack {
 	
 	private ArrayList<Note> notes;
+	private ArrayList<Measure> measures;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
 	private int instrument;
 	private int channel;
-	private int fixedVel;
 	
-	public BaseTrack(Track t, int depth) {
+	/**
+	 * Scans a track and generates a BaseTrack object used to generate songs.
+	 * 
+	 * @param t
+	 *            The track to scan.
+	 * @param depth
+	 *            The depth to store for the track.
+	 * @param resolution
+	 *            The resolution of the track.
+	 */
+	public BaseTrack(Track t, int depth, int resolution) {
 		notes = new ArrayList<Note>();
+		measures = new ArrayList<Measure>();
 		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
 		int noteIndex = 0;
-		int sumOfVel = 0;
+		ArrayList<Integer> curMeasure = new ArrayList<Integer>();
+		long length = 0;
 		for(int k = 0; k < t.size(); k++) { // loop through midiEvents
 			MidiEvent me = t.get(k);
 			if(me.getMessage() instanceof ShortMessage) {
@@ -33,7 +54,6 @@ public class BaseTrack {
 				// data1 = key
 				// data2 = vel
 				if(sm.getCommand() == ShortMessage.NOTE_ON && sm.getData2() != 0) {
-					sumOfVel += sm.getData2();
 					int dur = -1;
 					for(int l = k + 1; l < t.size(); l++) { // loop through more midievents
 						MidiEvent me1 = t.get(l);
@@ -47,6 +67,8 @@ public class BaseTrack {
 					}
 					int pitch = sm.getData1();
 					notes.add(new Note(pitch, dur));
+					length += dur;
+					curMeasure.add(dur);
 					if(noteIndex > depth - 1) {
 						ArrayList<Integer> follow = new ArrayList<Integer>();
 						for(int i = 0; i < depth; i++) {
@@ -62,6 +84,11 @@ public class BaseTrack {
 						}
 						
 					}
+					if(length >= resolution * 4 && dur != 0) {
+						measures.add(new Measure(curMeasure, resolution));
+						curMeasure.clear();
+						length = 0;
+					}
 					noteIndex++;
 				} else if(sm.getCommand() == ShortMessage.PROGRAM_CHANGE) {
 					instrument = sm.getData1();
@@ -69,8 +96,10 @@ public class BaseTrack {
 				}
 			}
 		}
-		if(noteIndex != 0)
-			fixedVel = 127;// TODO fixedVel = sumOfVel / noteIndex;
+	}
+	
+	private Measure getRandomMeasure() {
+		return measures.get((int) (Math.random() * measures.size()));
 	}
 	
 	/**
@@ -88,34 +117,42 @@ public class BaseTrack {
 		long dur = 0;
 		int index = 0;
 		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[0]);
-		System.out.println();
 		ArrayList<Integer> follow = notePitchKey;
+		int[] measure = getRandomMeasure().generateMeasure(24);
+		int measureIndex = 1;
 		int notePitch = notePitchKey.get(0);
-		int noteDur = 24;
+		int noteDur = measure[0];
+		MetaMessage timeSig = new MetaMessage();
+		try {
+			timeSig.setMessage(MetaMessage.META, new byte[]{0x58, 0x04, 0x04}, 3);
+		} catch(InvalidMidiDataException e) {
+			e.printStackTrace();
+		}
 		t.add(Song.createNoteEvent(ShortMessage.PROGRAM_CHANGE, channel, instrument, 0));
 		while(dur < length) {
 			System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, fixedVel, dur));
-			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, channel, notePitch, fixedVel, dur + noteDur));
-			HashMap<Integer, Double> pct;
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, 127, dur));
+			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, 0, dur + noteDur));
 			double rand = Math.random();
+			noteDur = measure[measureIndex];
+			measureIndex++;
+			if(measureIndex == measure.length) {
+				measure = getRandomMeasure().generateMeasure(24);
+				measureIndex = 0;
+			}
 			dur += noteDur;
 			Pitch p = pitchFollow.get(notePitchKey);
-			// if(p != null) {
-			pct = p.calcPercentage();
-			// }
+			HashMap<Integer, Double> pct = p.calcPercentage();
 			rand = Math.random();
 			Iterator<Entry<Integer, Double>> it = pct.entrySet().iterator();
 			while(it.hasNext()) {
 				Entry<Integer, Double> pair = (Entry<Integer, Double>) it.next();
-				// System.out.println(pair.getKey());
-				// System.out.println(pair.getValue());
 				if(rand <= (Double) pair.getValue()) {
 					notePitch = (Integer) pair.getKey();
 					break;
 				}
 			}
-					
+			
 			index++;
 			if(index >= depth) {
 				// set latest one at 0
@@ -124,10 +161,6 @@ public class BaseTrack {
 				follow.remove(depth);
 				follow.set(depth - 1, notePitch);
 				notePitchKey = follow;
-				for(int i = 0; i < notePitchKey.size(); i++) {
-					System.out.print(notePitchKey.get(i) + " ");
-				}
-				System.out.println();
 			}
 			
 		}
