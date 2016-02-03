@@ -24,8 +24,8 @@ public class Main {
 		for(int i = 0; i < s.length; i++) {
 			s[i] = Base.importMidi(new File("m" + (i + 1) + ".mid"));
 		}
-		Base b = new Base(1, s);
-		b.generateSong(1024, 1).write(new File("out.mid"));
+		Base b = new Base(2, Base.importMidi(new File("smb1-Theme.mid")));
+		b.generateSong(4096, 2).write(new File("out.mid"));
 	}
 }
 

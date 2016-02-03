@@ -9,7 +9,6 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
-import cox5529.Duration;
 import cox5529.Note;
 import cox5529.Pitch;
 import cox5529.Song;
@@ -18,7 +17,6 @@ public class BaseTrack {
 	
 	private ArrayList<Note> notes;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
-	private HashMap<Integer, Duration> noteFollow;
 	private int instrument;
 	private int channel;
 	private int fixedVel;
@@ -26,7 +24,6 @@ public class BaseTrack {
 	public BaseTrack(Track t, int depth) {
 		notes = new ArrayList<Note>();
 		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
-		noteFollow = new HashMap<Integer, Duration>();
 		int noteIndex = 0;
 		int sumOfVel = 0;
 		for(int k = 0; k < t.size(); k++) { // loop through midiEvents
@@ -50,16 +47,6 @@ public class BaseTrack {
 					}
 					int pitch = sm.getData1();
 					notes.add(new Note(pitch, dur));
-					if(noteIndex != 0) {
-						if(noteFollow.containsKey(dur)) {
-							int index = notes.get(noteIndex - 1).getDuration();
-							Duration d = noteFollow.get(index);
-							d.addFollow(dur);
-							noteFollow.put(index, d);
-						} else {
-							noteFollow.put(dur, new Duration(dur));
-						}
-					}
 					if(noteIndex > depth - 1) {
 						ArrayList<Integer> follow = new ArrayList<Integer>();
 						for(int i = 0; i < depth; i++) {
@@ -101,51 +88,50 @@ public class BaseTrack {
 		long dur = 0;
 		int index = 0;
 		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[0]);
+		System.out.println();
 		ArrayList<Integer> follow = notePitchKey;
 		int notePitch = notePitchKey.get(0);
-		int noteDur = (int) noteFollow.keySet().toArray()[0];
+		int noteDur = 24;
 		t.add(Song.createNoteEvent(ShortMessage.PROGRAM_CHANGE, channel, instrument, 0));
 		while(dur < length) {
+			System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
 			t.add(Song.createNoteEvent(ShortMessage.NOTE_ON, channel, notePitch, fixedVel, dur));
 			t.add(Song.createNoteEvent(ShortMessage.NOTE_OFF, channel, notePitch, fixedVel, dur + noteDur));
-			Duration d = noteFollow.get(noteDur);
-			HashMap<Integer, Double> pct = d.calcPercentage();
+			HashMap<Integer, Double> pct;
 			double rand = Math.random();
-			Iterator<Entry<Integer, Double>> it = pct.entrySet().iterator();
-			while(it.hasNext()) {
-				Entry<Integer, Double> pair = (Entry<Integer, Double>) it.next();
-				if(rand <= (Double) pair.getValue()) {
-					noteDur = (Integer) pair.getKey();
-					break;
-				}
-			}
 			dur += noteDur;
 			Pitch p = pitchFollow.get(notePitchKey);
 			// if(p != null) {
 			pct = p.calcPercentage();
 			// }
 			rand = Math.random();
-			it = pct.entrySet().iterator();
+			Iterator<Entry<Integer, Double>> it = pct.entrySet().iterator();
 			while(it.hasNext()) {
 				Entry<Integer, Double> pair = (Entry<Integer, Double>) it.next();
 				// System.out.println(pair.getKey());
 				// System.out.println(pair.getValue());
 				if(rand <= (Double) pair.getValue()) {
 					notePitch = (Integer) pair.getKey();
-					System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
 					break;
 				}
 			}
-			
+					
+			index++;
 			if(index >= depth) {
-				for(int i = 0; i < depth - 1; i++) {
-					follow.set(i, follow.get(i + 1));
-				}
+				// set latest one at 0
+				// shift everything up
+				follow.add(0, notePitch);
+				follow.remove(depth);
 				follow.set(depth - 1, notePitch);
 				notePitchKey = follow;
+				for(int i = 0; i < notePitchKey.size(); i++) {
+					System.out.print(notePitchKey.get(i) + " ");
+				}
+				System.out.println();
 			}
-			index++;
+			
 		}
+		System.out.println(t.ticks());
 		return t;
 	}
 }

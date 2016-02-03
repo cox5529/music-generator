@@ -38,6 +38,7 @@ public class Base {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+		resolution = 24;
 		Track end = s.createTrack();
 		long time = 0;
 		for(int i = 0; i < songs.length; i++) { // this just combines all of the tracks of each song into a single track
@@ -69,7 +70,7 @@ public class Base {
 								time += dur;
 								toAdd = new MidiEvent(last, time);
 								end.add(toAdd);
-								System.out.println("added note - " + sm.getData1());
+								System.out.print(" "+sm.getData1());
 							}
 						}
 					}
@@ -94,6 +95,8 @@ public class Base {
 		for(int i = 0; i < tracks.length; i++) {
 			tracks[i] = bases.get(i).generateTrack(tracks[i], length, depth);
 		}
+		System.out.println(tracks.length);
+		System.out.println(s.getSequence().getResolution());
 		return s;
 	}
 	
