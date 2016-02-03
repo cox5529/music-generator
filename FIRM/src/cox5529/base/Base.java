@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
 import cox5529.Song;
@@ -30,19 +32,62 @@ public class Base {
 	 */
 	public Base(int depth, Song... songs) {
 		bases = new ArrayList<BaseTrack>();
-		Sequence s;
+		Sequence s = null;
 		try {
 			s = new Sequence(Sequence.PPQ, songs[0].getSequence().getResolution());
-		} catch(InvalidMidiDataException e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		resolution = songs[0].getSequence().getResolution();
-		Track[] t = songs[0].getSequence().getTracks(); // combine all tracks before generating
-		for(int j = 0; j < t.length; j++) { // loop through tracks
-			bases.add(new BaseTrack(t[j], depth));
+		Track end = s.createTrack();
+		long time = 0;
+		for(int i = 0; i < songs.length; i++) { // this just combines all of the tracks of each song into a single track
+			System.out.println("Instantiating song...");
+			Track[] tracks = songs[i].getTracks();
+			for(int j = 0; j < tracks.length; j++) {
+				System.out.println("Instantiating track...");
+				MidiEvent[] events = new MidiEvent[tracks[j].size()];
+				for(int k = 0; k < events.length; k++) {
+					events[k] = tracks[j].get(k);
+					if(events[k].getMessage() instanceof ShortMessage) {
+						ShortMessage sm = (ShortMessage) events[k].getMessage();
+						ShortMessage last = null;
+						if(sm.getCommand() == ShortMessage.NOTE_ON && (sm.getData2() != 0 && sm.getChannel() != 9)) {
+							long dur = -1;
+							for(int l = k + 1; l < tracks[j].size(); l++) { // loop through more midievents
+								MidiEvent me1 = tracks[j].get(l);
+								if(me1.getMessage() instanceof ShortMessage) {
+									last = (ShortMessage) me1.getMessage();
+									if(last.getCommand() == ShortMessage.NOTE_ON) {
+										dur = (me1.getTick() - events[k].getTick());
+										break;
+									}
+								}
+							}
+							if(dur != 0) {
+								MidiEvent toAdd = new MidiEvent(sm, time);
+								end.add(toAdd);
+								time += dur;
+								toAdd = new MidiEvent(last, time);
+								end.add(toAdd);
+								System.out.println("added note - " + sm.getData1());
+							}
+						}
+					}
+				}
+			}
 		}
+		bases.add(new BaseTrack(end, depth));
 	}
 	
+	/**
+	 * Generates a song based on a given length and depth
+	 * 
+	 * @param length
+	 *            The length of the generated song.
+	 * @param depth
+	 *            The depth of the generated song.
+	 * @return The generated song.
+	 */
 	public Song generateSong(int length, int depth) {
 		Song s = new Song(bases.size(), resolution);
 		Track[] tracks = s.getTracks();

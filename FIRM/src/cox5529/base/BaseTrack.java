@@ -98,7 +98,6 @@ public class BaseTrack {
 	public Track generateTrack(Track t, long length, int depth) {
 		if(pitchFollow.keySet().size() == 0 || pitchFollow.keySet().size() == 1)
 			return null;
-		System.out.println(pitchFollow.size());
 		long dur = 0;
 		int index = 0;
 		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[0]);
@@ -122,9 +121,9 @@ public class BaseTrack {
 			}
 			dur += noteDur;
 			Pitch p = pitchFollow.get(notePitchKey);
-			if(p != null) {
-				pct = p.calcPercentage();
-			}
+			// if(p != null) {
+			pct = p.calcPercentage();
+			// }
 			rand = Math.random();
 			it = pct.entrySet().iterator();
 			while(it.hasNext()) {
@@ -133,7 +132,7 @@ public class BaseTrack {
 				// System.out.println(pair.getValue());
 				if(rand <= (Double) pair.getValue()) {
 					notePitch = (Integer) pair.getKey();
-					System.out.println("NOTE: " + notePitch);
+					System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
 					break;
 				}
 			}

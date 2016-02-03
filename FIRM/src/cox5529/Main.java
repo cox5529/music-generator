@@ -20,9 +20,12 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		// Song s = Base.importMidi(new File("smb1-Theme.mid"));
-		Song s = Base.importMidi(new File("smb1-Theme.mid"));
-		Base b = new Base(s, 2);
-		b.generateSong(32768, 2).write(new File("out.mid"));
+		Song[] s = new Song[8];
+		for(int i = 0; i < s.length; i++) {
+			s[i] = Base.importMidi(new File("m" + (i + 1) + ".mid"));
+		}
+		Base b = new Base(1, s);
+		b.generateSong(1024, 1).write(new File("out.mid"));
 	}
 }
 
