@@ -155,6 +155,8 @@ public class Song {
 		}
 	}
 	
+	public void generateMetaTrack()
+	
 	/**
 	 * Gets the tracks in the song.
 	 * 
