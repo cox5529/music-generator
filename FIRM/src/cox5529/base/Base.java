@@ -1,126 +1,194 @@
 package cox5529.base;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
+import com.leff.midi.MidiFile;
+import com.leff.midi.MidiTrack;
+import com.leff.midi.event.NoteOff;
+import com.leff.midi.event.NoteOn;
+import com.leff.midi.event.meta.Tempo;
+import com.leff.midi.util.MidiProcessor;
 
+import cox5529.Measure;
+import cox5529.Pitch;
 import cox5529.Song;
+import cox5529.listeners.NoteListener;
+import cox5529.listeners.NoteOffListener;
+import cox5529.listeners.TempoListener;
 
 /**
  * Class used to store the Base songs.
  * 
  * @author Brandon Cox
- * 		
  */
 public class Base {
 	
-	private ArrayList<BaseTrack> bases;
-	private int resolution;
+	private ArrayList<Measure> measures;
+	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
+	private ArrayList<Float> tempo;
+	private int res;
 	
 	/**
 	 * Creates a list of every note in the given songs. Creates the basis of the algorithm to compose songs.
 	 * 
-	 * @param songs
-	 *            The songs to create the base from.
+	 * @param depth The depth to scan when generating the song.
+	 * @param songs The songs to create the base from.
 	 */
-	public Base(int depth, Song... songs) {
-		bases = new ArrayList<BaseTrack>();
-		Sequence s = null;
-		try {
-			s = new Sequence(Sequence.PPQ, songs[0].getSequence().getResolution());
-		} catch(Exception e) {
-			e.printStackTrace();
+	public Base(int depth, File... songs) { // needs to import all songs into the
+											// bases array.
+		NoteListener nl = new NoteListener(depth, 96);
+		NoteOffListener no = new NoteOffListener();
+		TempoListener tl = new TempoListener();
+		for(int i = 0; i < songs.length; i++) {
+			MidiFile mFile = null;
+			MidiProcessor proc = null;
+			try {
+				mFile = new MidiFile(songs[i]);
+				res = mFile.getResolution();
+				ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
+				tracks.add(mFile.getTracks().get(0));
+				MidiFile read = new MidiFile(mFile.getResolution(), tracks);
+				proc = new MidiProcessor(read);
+			} catch(FileNotFoundException e) {
+				e.printStackTrace();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			
+			proc.registerEventListener(nl, NoteOn.class);
+			proc.registerEventListener(tl, Tempo.class);
+			proc.registerEventListener(no, NoteOff.class);
+			
+			proc.start();
+			while(proc.isRunning()) {
+				try {
+					Thread.sleep(100);
+				} catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			proc.stop();
 		}
-		resolution = songs[0].getSequence().getResolution();
-		Track end = s.createTrack();
-		long time = 0;
-		for(int i = 0; i < songs.length; i++) { // this just combines all of the tracks of each song into a single track
-			Track[] tracks = songs[i].getTracks();
-			for(int j = 0; j < tracks.length; j++) {
-				MidiEvent[] events = new MidiEvent[tracks[j].size()];
-				for(int k = 0; k < events.length; k++) {
-					events[k] = tracks[j].get(k);
-					if(events[k].getMessage() instanceof ShortMessage) {
-						ShortMessage sm = (ShortMessage) events[k].getMessage();
-						ShortMessage last = null;
-						if(sm.getCommand() == ShortMessage.NOTE_ON && (sm.getData2() != 0 && sm.getChannel() != 9)) {
-							long dur = -1;
-							for(int l = k + 1; l < tracks[j].size(); l++) { // loop through more midievents
-								MidiEvent me1 = tracks[j].get(l);
-								if(me1.getMessage() instanceof ShortMessage) {
-									last = (ShortMessage) me1.getMessage();
-									if(last.getCommand() == ShortMessage.NOTE_ON) {
-										dur = (me1.getTick() - events[k].getTick());
-										break;
-									}
-								}
-							}
-							if(dur != 0) {
-								MidiEvent toAdd = new MidiEvent(sm, time);
-								end.add(toAdd);
-								time += dur;
-								toAdd = new MidiEvent(last, time);
-								end.add(toAdd);
-							}
-						}
-					}
+		pitchFollow = nl.getPitchFollow();
+		tempo = tl.getBpm();
+		measures = new ArrayList<Measure>();
+		ArrayList<Long> starts = nl.getStarts();
+		ArrayList<Long> endings = no.getEndings();
+		if(endings.isEmpty())
+			endings = nl.getEndings();
+		long length = 0;
+		ArrayList<Long> cur = new ArrayList<Long>();
+		System.out.println(endings.size());
+		System.out.println(starts.size());
+		for(int i = 0; i < starts.size() - 1; i++) {
+			long dur = 0;
+			
+			// notes
+			dur = endings.get(i) - starts.get(i);
+			System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i));
+			cur.add(dur);
+			length += Math.abs(dur);
+			if(length >= res * 4) { // end of measure
+				System.out.println("make");
+				length = 0;
+				measures.add(new Measure(cur));
+				cur.clear();
+			}
+			
+			if(endings.get(i) != starts.get(i + 1)) {
+				// rests
+				// use a negative num for rests
+				dur = -1 * (starts.get(i + 1) - endings.get(i));
+				System.out.println(dur + ":\t" + starts.get(i + 1) + "\t" + endings.get(i));
+				cur.add(dur);
+				length += Math.abs(dur);
+				if(length >= res * 4) { // end of measure
+					System.out.println("make");
+					length = 0;
+					measures.add(new Measure(cur));
+					cur.clear();
 				}
 			}
 		}
-		bases.add(new BaseTrack(end, depth, resolution));
+		if(!cur.isEmpty()) {
+			cur.add(res * 4 - length);
+			measures.add(new Measure(cur));
+		}
+	}
+	
+	public int getRes() {
+		return res;
+	}
+
+	private Measure getRandomMeasure() {
+		return measures.get((int) (Math.random() * measures.size()));
 	}
 	
 	/**
 	 * Generates a song based on a given length and depth
 	 * 
-	 * @param length
-	 *            The length of the generated song.
-	 * @param depth
-	 *            The depth of the generated song.
+	 * @param length The length of the generated song.
+	 * @param depth The depth of the generated song.
 	 * @return The generated song.
 	 */
 	public Song generateSong(int length, int depth) {
-		Sequence s = null;
-		try {
-			s = new Sequence(Sequence.PPQ, resolution);
-			s.createTrack();
-			s.createTrack();
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
+		Song s = new Song();
+		if(pitchFollow.keySet().size() == 0 || pitchFollow.keySet().size() == 1)
+			return null;
+		long dur = 0;
+		int index = 0;
+		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[0]);
+		ArrayList<Integer> follow = notePitchKey;
+		long[] measure = getRandomMeasure().generateMeasure();
+		int measureIndex = 1;
+		int notePitch = notePitchKey.get(0);
+		long noteDur = measure[0];
+		s.setTimeSignature();
+		s.setTempo(tempo.get(0));
+		while(dur < length) {
+			if(noteDur > 0) {
+				System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
+				s.playNote(0, notePitch, 127, dur, noteDur);
+			}
+			double rand = Math.random();
+			noteDur = measure[measureIndex];
+			measureIndex++;
+			if(measureIndex == measure.length) {
+				measure = getRandomMeasure().generateMeasure();
+				measureIndex = 0;
+			}
+			dur += Math.abs(noteDur);
+			if(noteDur > 0) {
+				Pitch p = pitchFollow.get(notePitchKey);
+				HashMap<Integer, Double> pct = p.calcPercentage();
+				rand = Math.random();
+				Iterator<Entry<Integer, Double>> it = pct.entrySet().iterator();
+				while(it.hasNext()) {
+					Entry<Integer, Double> pair = (Entry<Integer, Double>) it.next();
+					if(rand <= (Double) pair.getValue()) {
+						notePitch = (Integer) pair.getKey();
+						break;
+					}
+				}
+				
+				index++;
+				if(index >= depth) {
+					// set latest one at 0
+					// shift everything up
+					follow.add(notePitch);
+					follow.remove(0);
+					notePitchKey = follow;
+				}
+			}
 		}
-		Track[] tracks = s.getTracks();
-		tracks[0] = BaseTrack.generateMetaTrack(tracks[0], 4, 4);
-		tracks[1] = bases.get(0).generateTrack(tracks[1], length, depth);
-		System.out.println(tracks.length);
-		System.out.println(s.getResolution());
-		return new Song(s);
-	}
-	
-	/**
-	 * Generates a Song object based on the .mid file given.
-	 * 
-	 * @param f
-	 *            The .mid file to read from
-	 * @return A song object created from the imported midi file
-	 */
-	public static Song importMidi(File f) {
-		try {
-			Sequence s = MidiSystem.getSequence(f);
-			return new Song(s);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		System.out.println(measures.size());
+		return s;
 	}
 	
 }

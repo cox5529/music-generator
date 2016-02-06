@@ -17,8 +17,7 @@ public class Pitch {
 	/**
 	 * Constructs a Pitch object based on a given array pitch ids.
 	 * 
-	 * @param p
-	 *            The pitch ids.
+	 * @param p The pitch ids.
 	 */
 	public Pitch(ArrayList<Integer> p, int fol) {
 		this.p = p;
@@ -29,8 +28,7 @@ public class Pitch {
 	/**
 	 * Adds a pitch to the list of the following pitches.
 	 * 
-	 * @param f
-	 *            The pitch to add.
+	 * @param f The pitch to add.
 	 */
 	public void addFollow(int f) {
 		follow.add(f);
@@ -78,6 +76,15 @@ public class Pitch {
 		}
 		// return
 		return pct;
+	}
+	
+	public String toString() {
+		String re = "";
+		for(int i = 0; i < p.size(); i++) {
+			re += " " + p.get(i);
+		}
+		
+		return re;
 	}
 	
 }

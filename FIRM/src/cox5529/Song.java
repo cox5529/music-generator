@@ -1,176 +1,124 @@
 package cox5529;
 
-import javax.sound.midi.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import com.leff.midi.MidiFile;
+import com.leff.midi.MidiTrack;
+import com.leff.midi.event.ProgramChange;
+import com.leff.midi.event.meta.Tempo;
+import com.leff.midi.event.meta.TimeSignature;
 
 /**
  * Class to store songs.
  * 
  * @author Brandon Cox
- * 		
  */
 public class Song {
 	
-	private Sequence seq;
-	private Track[] tracks;
+	private MidiTrack meta;
+	private MidiTrack song;
+	
+	public static final int DEFAULT_MIDI_RESOLUTION = 24;
 	
 	/**
-	 * Creates a song with the given number of tracks.
-	 * 
-	 * @param speed
-	 *            The speed of the song. 4 is relatively fast.
-	 * @param tracks
-	 *            Number of tracks in the song
+	 * Creates a song.
 	 */
-	public Song(int tracks, int speed) {
-		try {
-			this.seq = new Sequence(Sequence.PPQ, speed, tracks);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
-		
-		this.tracks = new Track[tracks];
-		for(int i = 0; i < tracks; i++) {
-			this.tracks[i] = seq.createTrack();
-		}
+	public Song() {
+		meta = new MidiTrack();
+		song = new MidiTrack();
 	}
 	
 	/**
-	 * Constructs a Song object based on the given sequence.
+	 * Sets the instrument of the given Track object.
 	 * 
-	 * @param seq
-	 *            The sequence to create the Song object from.
+	 * @param instrument The instrument number to change the track to.
 	 */
-	public Song(Sequence seq) {
-		this.seq = seq;
-		this.tracks = seq.getTracks();
+	public void setInstrument(int instrument) {
+		song.insertEvent(new ProgramChange(0, 0, instrument));
 	}
 	
 	/**
-	 * Constructs a new Song object based on the given Song object. Keeps instrumentation from previous tracks.
+	 * Sets the tempo based on a give BPM count.
 	 * 
-	 * @param s
-	 *            The Song to base the new Song on.
+	 * @param tempo The BPM to set the tempo to.
 	 */
-	public Song(Song s) {
-		Sequence temp = s.getSequence();
-		try {
-			this.seq = new Sequence(temp.getDivisionType(), temp.getResolution(), temp.getTracks().length);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
-		this.tracks = new Track[temp.getTracks().length];
-		for(int i = 0; i < this.tracks.length; i++) {
-			this.tracks[i] = seq.createTrack();
-		}
+	public void setTempo(float tempo) {
+		Tempo t = new Tempo();
+		t.setBpm(tempo);
+		meta.insertEvent(t);
 	}
 	
 	/**
-	 * Changes the instrument of the given Track object.
-	 * 
-	 * @param t
-	 *            The Track to change the instrument of.
-	 * @param instrument
-	 *            The instrument number to change the track to.
+	 * Sets the time signature to 4/4 time at the beginning of the song.
 	 */
-	public void changeInstrument(Track t, int instrument) {
-		ShortMessage sm = new ShortMessage();
-		try {
-			sm.setMessage(ShortMessage.PROGRAM_CHANGE, 0, instrument, 0);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
-		t.add(new MidiEvent(sm, 0));
+	public void setTimeSignature() {
+		meta.insertEvent(new TimeSignature());
 	}
 	
 	/**
-	 * Gets the Sequence object for this song.
+	 * Sets the time signature to num/den time at the beginning of the song.
 	 * 
-	 * @return The Sequence object for this song.
+	 * @param num The numerator of the time signature.
+	 * @param den The denominator of the time signature.
 	 */
-	public Sequence getSequence() {
-		return seq;
+	public void setTimeSignature(int num, int den) {
+		meta.insertEvent(new TimeSignature(0, 0, num, den, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION));
 	}
 	
 	/**
-	 * Creates a MidiEvent to play a note.
+	 * Adds a note to the song.
 	 * 
-	 * @param com
-	 *            The command for the event.
-	 * @param key
-	 *            The key to be played.
-	 * @param vel
-	 *            The velocity to play the note at.
-	 * @param tick
-	 *            The tick to place the event at.
-	 * @return
+	 * @param channel The channel to play the note on.
+	 * @param pitch The pitch to play.
+	 * @param vel The velocity of the note.
+	 * @param tick The tick to start the note at.
+	 * @param dur The duration of the note.
 	 */
-	public static MidiEvent createNoteEvent(int com, int key, int vel, long tick) {
-		ShortMessage mess = new ShortMessage();
-		try {
-			mess.setMessage(com, 0, key, vel);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
-		return new MidiEvent(mess, tick);
-	}
-	
-	/**
-	 * Creates a MidiEvent to play a note.
-	 * 
-	 * @param com
-	 *            The command for the event.
-	 * @param channel
-	 *            The channel to play the note on.
-	 * @param key
-	 *            The key to be played.
-	 * @param vel
-	 *            The velocity to play the note at.
-	 * @param tick
-	 *            The tick to place the event at.
-	 * @return
-	 */
-	public static MidiEvent createNoteEvent(int com, int channel, int key, int vel, long tick) {
-		ShortMessage mess = new ShortMessage();
-		try {
-			mess.setMessage(com, channel, key, vel);
-		} catch(InvalidMidiDataException e) {
-			e.printStackTrace();
-		}
-		return new MidiEvent(mess, tick);
+	public void playNote(int channel, int pitch, int vel, long tick, long dur) {
+		song.insertNote(channel, pitch, vel, tick, dur);
 	}
 	
 	/**
 	 * Writes the song to the specified file.
 	 * 
-	 * @param out
-	 *            File to write the song to. File must end in .mid.
+	 * @param out File to write the song to. File must end in .mid.
+	 * @param res The resolution of the MIDI file.
 	 */
-	public void write(File out) {
+	public void write(File out, int res) {
+		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
+		tracks.add(meta);
+		tracks.add(song);
+		MidiFile midi = new MidiFile(res, tracks);
 		try {
-			MidiSystem.write(seq, MidiSystem.getMidiFileTypes(seq)[0], out);
+			midi.writeToFile(out);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void generateMetaTrack()
-	
 	/**
-	 * Gets the tracks in the song.
+	 * Writes the song to the specified file using Song.DEFAULT_MIDI_RESOLUTION as the resolution.
 	 * 
-	 * @return The tracks in the song.
+	 * @param out File to write the song to. File must end in .mid.
 	 */
-	public Track[] getTracks() {
-		return tracks;
+	public void write(File out) {
+		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
+		tracks.add(meta);
+		tracks.add(song);
+		MidiFile midi = new MidiFile(Song.DEFAULT_MIDI_RESOLUTION, tracks);
+		try {
+			midi.writeToFile(out);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
 	 * Generates an array of 7 notes (an octave) in a minor key.
 	 * 
-	 * @param start
-	 *            The starting note of the octave.
+	 * @param start The starting note of the octave.
 	 * @return An array of 7 notes in key.
 	 */
 	public static int[] generateMinorOctave(int start) {
@@ -188,8 +136,7 @@ public class Song {
 	/**
 	 * Generates an array of 7 notes (an octave) in a major key.
 	 * 
-	 * @param start
-	 *            The starting note of the octave.
+	 * @param start The starting note of the octave.
 	 * @return An array of 7 notes in key.
 	 */
 	public static int[] generateMajorOctave(int start) {
@@ -207,8 +154,7 @@ public class Song {
 	/**
 	 * Generates an array of all 12 notes up to an octave above start.
 	 * 
-	 * @param start
-	 *            The starting note of the octave.
+	 * @param start The starting note of the octave.
 	 * @return An array of 12 notes in key.
 	 */
 	public static int[] generateChromaticOctave(int start) {
@@ -217,25 +163,6 @@ public class Song {
 			re[i] = start + i;
 		}
 		return re;
-	}
-	
-	/**
-	 * Adds a note to the song.
-	 * 
-	 * @param t
-	 *            The track to add the note to.
-	 * @param key
-	 *            The note to play.
-	 * @param vel
-	 *            The volume of the note from 1 to 127.
-	 * @param tick
-	 *            The time tick at which to play the note.
-	 * @param dur
-	 *            The duration of the note.
-	 */
-	public void createNote(Track t, int key, int vel, long tick, long dur) {
-		t.add(createNoteEvent(ShortMessage.NOTE_ON, key, vel, tick));
-		t.add(createNoteEvent(ShortMessage.NOTE_OFF, key, vel, tick + dur));
 	}
 	
 }

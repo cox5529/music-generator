@@ -15,18 +15,17 @@ public class Main {
 	/**
 	 * Main method for music generator.
 	 * 
-	 * @param args
-	 *            Command line arguments.
+	 * @param args Command line arguments.
 	 */
 	public static void main(String[] args) {
 		// Song s = Base.importMidi(new File("smb1-Theme.mid"));
-		Song[] s = new Song[8];
+		File[] s = new File[8];
 		for(int i = 0; i < s.length; i++) {
-			s[i] = Base.importMidi(new File("m" + (i + 1) + ".mid"));
+			s[i] = new File("m" + (i + 1) + ".mid");
 		}
-		Song mario = Base.importMidi(new File("smb1-Theme.mid"));
+		File mario = new File("mario.mid");
 		Base b = new Base(2, mario);
-		b.generateSong(32768, 2).write(new File("out.mid"));
+		b.generateSong(32768, 2).write(new File("out.mid"), b.getRes());
 	}
 }
 
