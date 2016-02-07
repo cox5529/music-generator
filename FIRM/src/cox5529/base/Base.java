@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
@@ -48,9 +47,6 @@ public class Base {
 		ArrayList<Long> endings = new ArrayList<Long>();
 		ArrayList<Long> starts = new ArrayList<Long>();
 		measures = new ArrayList<Measure>();
-		NoteListener nl = null;
-		NoteOffListener no = null;
-		TempoListener tl = new TempoListener();
 		
 		for(int i = 0; i < songs.length; i++) {
 			MidiFile mFile = null;
@@ -68,8 +64,10 @@ public class Base {
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
-			nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks());
-			no = new NoteOffListener(mFile.getLengthInTicks());
+			NoteListener nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks());
+			NoteOffListener no = new NoteOffListener(mFile.getLengthInTicks());
+			TempoListener tl = new TempoListener();
+			
 			proc.registerEventListener(nl, NoteOn.class);
 			proc.registerEventListener(tl, Tempo.class);
 			proc.registerEventListener(no, NoteOff.class);
@@ -90,6 +88,7 @@ public class Base {
 				Entry<ArrayList<Integer>, Pitch> pair = (Entry<ArrayList<Integer>, Pitch>) it.next();
 				ArrayList<Integer> key = pair.getKey();
 				Pitch p = pair.getValue();
+				System.out.println(key + "\t" + p);
 				if(pitchFollow.containsKey(key)) {
 					Pitch p1 = pitchFollow.get(key);
 					p1.combine(p.getFollow());
@@ -114,7 +113,7 @@ public class Base {
 			
 			// notes
 			dur = (endings.get(i) - starts.get(i));
-			System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i) + "\t" + length);
+			// System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i) + "\t" + length);
 			cur.add(dur);
 			length += Math.abs(dur);
 			if(length >= res * 4) { // end of measure
@@ -128,7 +127,7 @@ public class Base {
 				// rests
 				// use a negative num for rests
 				dur = -1 * (starts.get(i + 1) - endings.get(i));
-				System.out.println(dur + ":\t" + endings.get(i) + "\t" + starts.get(i + 1) + "\t" + length);
+				// System.out.println(dur + ":\t" + endings.get(i) + "\t" + starts.get(i + 1) + "\t" + length);
 				cur.add(dur);
 				length += Math.abs(dur);
 				if(length >= res * 4) { // end of measure
@@ -146,6 +145,11 @@ public class Base {
 		 */
 	}
 	
+	/**
+	 * Gets the resolution of the Base file.
+	 * 
+	 * @return The resolution.
+	 */
 	public int getRes() {
 		return res;
 	}
@@ -167,7 +171,7 @@ public class Base {
 			return null;
 		long dur = 0;
 		int index = 0;
-		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[0]);
+		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[(int) (Math.random() * pitchFollow.size())]);
 		ArrayList<Integer> follow = notePitchKey;
 		long[] measure = getRandomMeasure().generateMeasure();
 		int measureIndex = 1;

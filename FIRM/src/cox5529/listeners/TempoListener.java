@@ -6,10 +6,19 @@ import com.leff.midi.event.MidiEvent;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.util.MidiEventListener;
 
+/**
+ * Listener used to listen for TempoChange events.
+ * 
+ * @author Brandon Cox
+ * 		
+ */
 public class TempoListener implements MidiEventListener {
 	
 	private ArrayList<Float> bpm;
 	
+	/**
+	 * Constructs a TempoListener object.
+	 */
 	public TempoListener() {
 		bpm = new ArrayList<Float>();
 	}
@@ -33,6 +42,11 @@ public class TempoListener implements MidiEventListener {
 		System.out.println("Finished reading for tempo.");
 	}
 	
+	/**
+	 * Gets the list of tempos used throughout the song.
+	 * 
+	 * @return An ArrayList of tempos.
+	 */
 	public ArrayList<Float> getBpm() {
 		return bpm;
 	}

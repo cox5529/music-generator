@@ -18,16 +18,12 @@ public class Pitch {
 	 * Constructs a Pitch object based on a given array pitch ids.
 	 * 
 	 * @param p The pitch ids.
+	 * @param fol The pitch which follows the set of pitch ids.
 	 */
 	public Pitch(ArrayList<Integer> p, int fol) {
 		this.p = p;
 		this.follow = new ArrayList<Integer>();
 		follow.add(fol);
-	}
-	
-	public Pitch(ArrayList<Integer> p, ArrayList<Integer> fol) {
-		this.p = p;
-		this.follow = fol;
 	}
 	
 	/**
@@ -83,10 +79,20 @@ public class Pitch {
 		return pct;
 	}
 	
+	/**
+	 * Combines the follow ArrayList with another ArrayList.
+	 * 
+	 * @param f The ArrayList to combine with follow.
+	 */
 	public void combine(ArrayList<Integer> f) {
 		follow.addAll(f);
 	}
 	
+	/**
+	 * Gets the follow ArrayList.
+	 * 
+	 * @return The follow ArrayList.
+	 */
 	public ArrayList<Integer> getFollow() {
 		return follow;
 	}

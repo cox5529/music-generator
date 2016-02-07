@@ -21,6 +21,9 @@ public class Song {
 	private MidiTrack meta;
 	private MidiTrack song;
 	
+	/**
+	 * The default resolution of all MIDI files (24).
+	 */
 	public static final int DEFAULT_MIDI_RESOLUTION = 24;
 	
 	/**
@@ -34,7 +37,7 @@ public class Song {
 	/**
 	 * Sets the instrument of the given Track object.
 	 * 
-	 * @param instrument The instrument number to change the track to.
+	 * @param intstrument The instrument number to change the track to.
 	 */
 	public void setInstrument(MidiProgram intstrument) {
 		song.insertEvent(new ProgramChange(0, 0, intstrument.programNumber()));

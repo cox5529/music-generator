@@ -10,6 +10,12 @@ import com.leff.midi.util.MidiEventListener;
 
 import cox5529.Pitch;
 
+/**
+ * Listener used to listen for NoteOn events.
+ * 
+ * @author Brandon Cox
+ * 		
+ */
 public class NoteListener extends Listener implements MidiEventListener {
 	
 	private ArrayList<Long> starts;
@@ -19,6 +25,13 @@ public class NoteListener extends Listener implements MidiEventListener {
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
 	private long size;
 	
+	/**
+	 * Constructs a NoteListener object.
+	 * 
+	 * @param depth The depth to scan for pitches.
+	 * @param ticksPerMeasure The amount of ticks per measure.
+	 * @param size The length in ticks of the song.
+	 */
 	public NoteListener(int depth, int ticksPerMeasure, long size) {
 		super(size);
 		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
@@ -28,10 +41,20 @@ public class NoteListener extends Listener implements MidiEventListener {
 		this.size = size;
 	}
 	
+	/**
+	 * Gets the tick position of all NoteOn events.
+	 * 
+	 * @return An ArrayList of NoteOn event tick positions.
+	 */
 	public ArrayList<Long> getStarts() {
 		return starts;
 	}
 	
+	/**
+	 * Gets the HashMap of pitches, which contains what pitches most commonly follow every set of pitches.
+	 * 
+	 * @return The HashMap of pitches.
+	 */
 	public HashMap<ArrayList<Integer>, Pitch> getPitchFollow() {
 		return pitchFollow;
 	}
@@ -57,7 +80,7 @@ public class NoteListener extends Listener implements MidiEventListener {
 					for(int i = 1; i < depth; i++) {
 						old[i - 1] = follow.get(i);
 					}
-					follow.clear();
+					follow = new ArrayList<Integer>();
 					for(int i = 0; i < old.length; i++) {
 						follow.add(old[i]);
 					}
@@ -73,6 +96,11 @@ public class NoteListener extends Listener implements MidiEventListener {
 		}
 	}
 	
+	/**
+	 * Gets the tick position of all NoteOn events with a velocity of 0.
+	 * 
+	 * @return An ArrayList of NoteOn events with a velocity of 0 tick positions.
+	 */
 	public ArrayList<Long> getEndings() {
 		return endings;
 	}

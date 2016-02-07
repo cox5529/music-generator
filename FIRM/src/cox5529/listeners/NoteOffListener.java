@@ -6,10 +6,19 @@ import com.leff.midi.event.MidiEvent;
 import com.leff.midi.event.NoteOff;
 import com.leff.midi.util.MidiEventListener;
 
+/**
+ * Listener used to listen for NoteOff events.
+ * @author Brandon Cox
+ *
+ */
 public class NoteOffListener extends Listener implements MidiEventListener {
 	
 	private ArrayList<Long> endings;
 	
+	/**
+	 * Constructs a NoteOffListener object.
+	 * @param size Length in ticks of the MidiFile being analyzed.
+	 */
 	public NoteOffListener(long size) {
 		super(size);
 		endings = new ArrayList<Long>();
@@ -20,6 +29,10 @@ public class NoteOffListener extends Listener implements MidiEventListener {
 		System.out.println("Reading for note endings.");
 	}
 	
+	/**
+	 * Gets the tick position of all NoteOff events.
+	 * @return An ArrayList of NoteOff event tick positions.
+	 */
 	public ArrayList<Long> getEndings() {
 		return endings;
 	}
