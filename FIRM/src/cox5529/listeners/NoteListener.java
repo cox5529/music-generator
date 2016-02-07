@@ -10,19 +10,22 @@ import com.leff.midi.util.MidiEventListener;
 
 import cox5529.Pitch;
 
-public class NoteListener implements MidiEventListener {
+public class NoteListener extends Listener implements MidiEventListener {
 	
 	private ArrayList<Long> starts;
 	private int depth;
 	private ArrayList<Integer> follow;
 	private ArrayList<Long> endings;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
+	private long size;
 	
-	public NoteListener(int depth, int ticksPerMeasure) {
+	public NoteListener(int depth, int ticksPerMeasure, long size) {
+		super(size);
 		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
 		endings = new ArrayList<Long>();
 		starts = new ArrayList<Long>();
 		this.depth = depth;
+		this.size = size;
 	}
 	
 	public ArrayList<Long> getStarts() {
@@ -61,8 +64,8 @@ public class NoteListener implements MidiEventListener {
 				}
 				follow.add(pitch);
 				starts.add(no.getTick());
-				System.out.println(no.getTick() + ": procesed note_on");
-			}else{
+				System.out.println(event.getTick() + ": processed note_on\tPCT COMPLETE: " + (((0.0 + no.getTick()) / size) * 100));
+			} else {
 				endings.add(event.getTick());
 			}
 		} else if(event instanceof NoteOff) {
@@ -73,7 +76,7 @@ public class NoteListener implements MidiEventListener {
 	public ArrayList<Long> getEndings() {
 		return endings;
 	}
-
+	
 	@Override
 	public void onStart(boolean fromBeginning) {
 		System.out.println("Reading for note beginnings.");

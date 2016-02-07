@@ -6,11 +6,12 @@ import com.leff.midi.event.MidiEvent;
 import com.leff.midi.event.NoteOff;
 import com.leff.midi.util.MidiEventListener;
 
-public class NoteOffListener implements MidiEventListener {
+public class NoteOffListener extends Listener implements MidiEventListener {
 	
 	private ArrayList<Long> endings;
 	
-	public NoteOffListener() {
+	public NoteOffListener(long size) {
+		super(size);
 		endings = new ArrayList<Long>();
 	}
 	
@@ -27,7 +28,7 @@ public class NoteOffListener implements MidiEventListener {
 	public void onEvent(MidiEvent event, long ms) {
 		if(event instanceof NoteOff) {
 			endings.add(event.getTick());
-			System.out.println(event.getTick() + ": processed note_off");
+			System.out.println(event.getTick() + ": processed note_off\tPCT COMPLETE: " + (((0.0 + event.getTick()) / size) * 100));
 		}
 	}
 	
