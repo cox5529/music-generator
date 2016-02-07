@@ -78,6 +78,10 @@ public class Pitch {
 		return pct;
 	}
 	
+	public void combine(ArrayList<Integer> f) {
+		follow.addAll(f);
+	}
+	
 	public String toString() {
 		String re = "";
 		for(int i = 0; i < p.size(); i++) {
