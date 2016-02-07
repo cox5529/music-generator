@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.ProgramChange;
+import com.leff.midi.event.ProgramChange.MidiProgram;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
 
@@ -35,8 +36,8 @@ public class Song {
 	 * 
 	 * @param instrument The instrument number to change the track to.
 	 */
-	public void setInstrument(int instrument) {
-		song.insertEvent(new ProgramChange(0, 0, instrument));
+	public void setInstrument(MidiProgram intstrument) {
+		song.insertEvent(new ProgramChange(0, 0, intstrument.programNumber()));
 	}
 	
 	/**
