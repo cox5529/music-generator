@@ -42,8 +42,8 @@ public class Base {
 	 */
 	public Base(int depth, File... songs) { // needs to import all songs into the
 											// bases array.
-		NoteListener nl = new NoteListener(depth, 96);
-		NoteOffListener no = new NoteOffListener();
+		NoteListener nl = null;
+		NoteOffListener no = null;
 		TempoListener tl = new TempoListener();
 		for(int i = 0; i < songs.length; i++) {
 			MidiFile mFile = null;
@@ -54,7 +54,6 @@ public class Base {
 				System.out.println(res);
 				ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 				tracks.add(mFile.getTracks().get(0));
-				
 				MidiFile read = new MidiFile(mFile.getResolution(), tracks);
 				proc = new MidiProcessor(read);
 			} catch(FileNotFoundException e) {
@@ -62,6 +61,8 @@ public class Base {
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
+			nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks());
+			no = new NoteOffListener(mFile.getLengthInTicks());
 			
 			proc.registerEventListener(nl, NoteOn.class);
 			proc.registerEventListener(tl, Tempo.class);
@@ -96,7 +97,7 @@ public class Base {
 			System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i) + "\t" + length);
 			cur.add(dur);
 			length += Math.abs(dur);
-			if(length >= res * 2) { // end of measure
+			if(length >= res * 4) { // end of measure
 				System.out.println("make");
 				length = 0;
 				measures.add(new Measure(cur));
@@ -110,7 +111,7 @@ public class Base {
 				System.out.println(dur + ":\t" + endings.get(i) + "\t" + starts.get(i + 1) + "\t" + length);
 				cur.add(dur);
 				length += Math.abs(dur);
-				if(length >= res * 2) { // end of measure
+				if(length >= res * 4) { // end of measure
 					length = 0;
 					measures.add(new Measure(cur));
 					System.out.println("make");
