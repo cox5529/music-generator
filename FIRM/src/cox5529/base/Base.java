@@ -51,8 +51,10 @@ public class Base {
 			try {
 				mFile = new MidiFile(songs[i]);
 				res = mFile.getResolution();
+				System.out.println(res);
 				ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 				tracks.add(mFile.getTracks().get(0));
+				
 				MidiFile read = new MidiFile(mFile.getResolution(), tracks);
 				proc = new MidiProcessor(read);
 			} catch(FileNotFoundException e) {
@@ -68,7 +70,7 @@ public class Base {
 			proc.start();
 			while(proc.isRunning()) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				} catch(InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -90,42 +92,43 @@ public class Base {
 			long dur = 0;
 			
 			// notes
-			dur = endings.get(i) - starts.get(i);
-			System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i));
+			dur = (endings.get(i) - starts.get(i));
+			System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i) + "\t" + length);
 			cur.add(dur);
 			length += Math.abs(dur);
-			if(length >= res * 4) { // end of measure
+			if(length >= res * 2) { // end of measure
 				System.out.println("make");
 				length = 0;
 				measures.add(new Measure(cur));
-				cur.clear();
+				cur = new ArrayList<Long>();
 			}
 			
 			if(endings.get(i) != starts.get(i + 1)) {
 				// rests
 				// use a negative num for rests
 				dur = -1 * (starts.get(i + 1) - endings.get(i));
-				System.out.println(dur + ":\t" + starts.get(i + 1) + "\t" + endings.get(i));
+				System.out.println(dur + ":\t" + endings.get(i) + "\t" + starts.get(i + 1) + "\t" + length);
 				cur.add(dur);
 				length += Math.abs(dur);
-				if(length >= res * 4) { // end of measure
-					System.out.println("make");
+				if(length >= res * 2) { // end of measure
 					length = 0;
 					measures.add(new Measure(cur));
-					cur.clear();
+					System.out.println("make");
+					cur = new ArrayList<Long>();
 				}
+				
 			}
+			System.out.println(measures.size());
 		}
-		if(!cur.isEmpty()) {
-			cur.add(res * 4 - length);
-			measures.add(new Measure(cur));
-		}
+		/*
+		 * if(!cur.isEmpty()) { cur.add(res * 4 - length); measures.add(new Measure(cur)); }
+		 */
 	}
 	
 	public int getRes() {
 		return res;
 	}
-
+	
 	private Measure getRandomMeasure() {
 		return measures.get((int) (Math.random() * measures.size()));
 	}
@@ -153,9 +156,12 @@ public class Base {
 		s.setTempo(tempo.get(0));
 		while(dur < length) {
 			if(noteDur > 0) {
-				System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch);
+				System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch + "\tNOTEDUR: " + noteDur);
 				s.playNote(0, notePitch, 127, dur, noteDur);
+			} else {
+				System.out.println("REST AT:  " + dur + "\t\t\tNOTEDUR: " + noteDur);
 			}
+			dur += Math.abs(noteDur);
 			double rand = Math.random();
 			noteDur = measure[measureIndex];
 			measureIndex++;
@@ -163,7 +169,6 @@ public class Base {
 				measure = getRandomMeasure().generateMeasure();
 				measureIndex = 0;
 			}
-			dur += Math.abs(noteDur);
 			if(noteDur > 0) {
 				Pitch p = pitchFollow.get(notePitchKey);
 				HashMap<Integer, Double> pct = p.calcPercentage();
@@ -187,7 +192,6 @@ public class Base {
 				}
 			}
 		}
-		System.out.println(measures.size());
 		return s;
 	}
 	

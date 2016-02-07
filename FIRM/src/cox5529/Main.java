@@ -2,6 +2,8 @@ package cox5529;
 
 import java.io.File;
 
+import com.leff.midi.event.ProgramChange;
+
 import cox5529.base.Base;
 
 /**
@@ -25,7 +27,9 @@ public class Main {
 		}
 		File mario = new File("mario.mid");
 		Base b = new Base(2, mario);
-		b.generateSong(32768, 2).write(new File("out.mid"), b.getRes());
+		Song song = b.generateSong(32768, 2);
+		song.setInstrument(ProgramChange.MidiProgram.TRUMPET);
+		song.write(new File("out.mid"), b.getRes());
 	}
 }
 
