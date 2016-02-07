@@ -54,7 +54,6 @@ public class Base {
 			try {
 				mFile = new MidiFile(songs[i]);
 				res = mFile.getResolution();
-				System.out.println(res);
 				ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 				tracks.add(mFile.getTracks().get(0));
 				MidiFile read = new MidiFile(mFile.getResolution(), tracks);
@@ -88,7 +87,6 @@ public class Base {
 				Entry<ArrayList<Integer>, Pitch> pair = (Entry<ArrayList<Integer>, Pitch>) it.next();
 				ArrayList<Integer> key = pair.getKey();
 				Pitch p = pair.getValue();
-				System.out.println(key + "\t" + p);
 				if(pitchFollow.containsKey(key)) {
 					Pitch p1 = pitchFollow.get(key);
 					p1.combine(p.getFollow());
@@ -106,8 +104,6 @@ public class Base {
 		
 		long length = 0;
 		ArrayList<Long> cur = new ArrayList<Long>();
-		System.out.println(endings.size());
-		System.out.println(starts.size());
 		for(int i = 0; i < starts.size() - 1; i++) {
 			long dur = 0;
 			
@@ -117,7 +113,6 @@ public class Base {
 			cur.add(dur);
 			length += Math.abs(dur);
 			if(length >= res * 4) { // end of measure
-				System.out.println("make");
 				length = 0;
 				measures.add(new Measure(cur));
 				cur = new ArrayList<Long>();
@@ -133,7 +128,6 @@ public class Base {
 				if(length >= res * 4) { // end of measure
 					length = 0;
 					measures.add(new Measure(cur));
-					System.out.println("make");
 					cur = new ArrayList<Long>();
 				}
 				
