@@ -25,6 +25,11 @@ public class Pitch {
 		follow.add(fol);
 	}
 	
+	public Pitch(ArrayList<Integer> p, ArrayList<Integer> fol) {
+		this.p = p;
+		this.follow = fol;
+	}
+	
 	/**
 	 * Adds a pitch to the list of the following pitches.
 	 * 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
@@ -42,9 +43,15 @@ public class Base {
 	 */
 	public Base(int depth, File... songs) { // needs to import all songs into the
 											// bases array.
+		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
+		tempo = new ArrayList<Float>();
+		ArrayList<Long> endings = new ArrayList<Long>();
+		ArrayList<Long> starts = new ArrayList<Long>();
+		measures = new ArrayList<Measure>();
 		NoteListener nl = null;
 		NoteOffListener no = null;
 		TempoListener tl = new TempoListener();
+		
 		for(int i = 0; i < songs.length; i++) {
 			MidiFile mFile = null;
 			MidiProcessor proc = null;
@@ -63,7 +70,6 @@ public class Base {
 			}
 			nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks());
 			no = new NoteOffListener(mFile.getLengthInTicks());
-			
 			proc.registerEventListener(nl, NoteOn.class);
 			proc.registerEventListener(tl, Tempo.class);
 			proc.registerEventListener(no, NoteOff.class);
@@ -77,14 +83,28 @@ public class Base {
 				}
 			}
 			proc.stop();
+			// combine pitchFollows
+			HashMap<ArrayList<Integer>, Pitch> newFollow = nl.getPitchFollow();
+			Iterator<Entry<ArrayList<Integer>, Pitch>> it = newFollow.entrySet().iterator();
+			while(it.hasNext()) {
+				Entry<ArrayList<Integer>, Pitch> pair = (Entry<ArrayList<Integer>, Pitch>) it.next();
+				ArrayList<Integer> key = pair.getKey();
+				Pitch p = pair.getValue();
+				if(pitchFollow.containsKey(key)) {
+					Pitch p1 = pitchFollow.get(key);
+					p1.combine(p.getFollow());
+					pitchFollow.put(key, p1);
+				} else {
+					pitchFollow.put(key, p);
+				}
+			}
+			
+			tempo.addAll(tl.getBpm());
+			starts.addAll(nl.getStarts());
+			endings.addAll(no.getEndings());
+			endings.addAll(nl.getEndings());
 		}
-		pitchFollow = nl.getPitchFollow();
-		tempo = tl.getBpm();
-		measures = new ArrayList<Measure>();
-		ArrayList<Long> starts = nl.getStarts();
-		ArrayList<Long> endings = no.getEndings();
-		if(endings.isEmpty())
-			endings = nl.getEndings();
+		
 		long length = 0;
 		ArrayList<Long> cur = new ArrayList<Long>();
 		System.out.println(endings.size());
@@ -119,8 +139,8 @@ public class Base {
 				}
 				
 			}
-			System.out.println(measures.size());
 		}
+		
 		/*
 		 * if(!cur.isEmpty()) { cur.add(res * 4 - length); measures.add(new Measure(cur)); }
 		 */

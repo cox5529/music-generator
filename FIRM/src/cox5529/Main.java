@@ -25,9 +25,11 @@ public class Main {
 		for(int i = 0; i < s.length; i++) {
 			s[i] = new File("m" + (i + 1) + ".mid");
 		}
-		File mario = new File("mario.mid");
-		Base b = new Base(2, mario);
-		Song song = b.generateSong(32768, 2);
+		File fi = new File("Fiesta.mid");
+		File tbm = new File("tbm.mid");
+		File mar = new File("mario.mid");
+		Base b = new Base(2, tbm, mar, fi);
+		Song song = b.generateSong(25 * b.getRes() * 4, 2);
 		song.setInstrument(ProgramChange.MidiProgram.TRUMPET);
 		song.write(new File("out.mid"), b.getRes());
 	}
