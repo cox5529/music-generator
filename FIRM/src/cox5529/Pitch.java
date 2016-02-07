@@ -82,6 +82,10 @@ public class Pitch {
 		follow.addAll(f);
 	}
 	
+	public ArrayList<Integer> getFollow() {
+		return follow;
+	}
+	
 	public String toString() {
 		String re = "";
 		for(int i = 0; i < p.size(); i++) {
