@@ -4,7 +4,6 @@ import java.io.File;
 
 import com.leff.midi.event.ProgramChange;
 
-import cox5529.base.Base;
 import cox5529.storage.Song;
 
 /**
