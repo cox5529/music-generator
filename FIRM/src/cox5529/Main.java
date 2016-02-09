@@ -5,6 +5,7 @@ import java.io.File;
 import com.leff.midi.event.ProgramChange;
 
 import cox5529.base.Base;
+import cox5529.storage.Song;
 
 /**
  * Main class for music generator.
@@ -28,7 +29,7 @@ public class Main {
 		File fi = new File("Fiesta.mid");
 		File tbm = new File("tbm.mid");
 		File mar = new File("mario.mid");
-		Base b = new Base(2, tbm, mar, fi);
+		Base b = new Base(2, fi);
 		Song song = b.generateSong(25 * b.getRes() * 4, 2);
 		song.setInstrument(ProgramChange.MidiProgram.TRUMPET);
 		song.write(new File("out.mid"), b.getRes());

@@ -8,7 +8,7 @@ import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.NoteOn;
 import com.leff.midi.util.MidiEventListener;
 
-import cox5529.Pitch;
+import cox5529.storage.Pitch;
 
 /**
  * Listener used to listen for NoteOn events.

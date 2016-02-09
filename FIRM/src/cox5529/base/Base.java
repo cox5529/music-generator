@@ -15,12 +15,12 @@ import com.leff.midi.event.NoteOn;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.util.MidiProcessor;
 
-import cox5529.Measure;
-import cox5529.Pitch;
-import cox5529.Song;
 import cox5529.listeners.NoteListener;
 import cox5529.listeners.NoteOffListener;
 import cox5529.listeners.TempoListener;
+import cox5529.storage.Measure;
+import cox5529.storage.Pitch;
+import cox5529.storage.Song;
 
 /**
  * Class used to store the Base songs.
