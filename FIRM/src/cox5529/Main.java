@@ -17,7 +17,8 @@ public class Main {
 	/**
 	 * Main method for music generator.
 	 * 
-	 * @param args Command line arguments.
+	 * @param args
+	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
 		// Song s = Base.importMidi(new File("smb1-Theme.mid"));
@@ -28,7 +29,8 @@ public class Main {
 		File fi = new File("Fiesta.mid");
 		File tbm = new File("tbm.mid");
 		File mar = new File("mario.mid");
-		Base b = new Base(2, fi);
+		Base b = new Base(2, mar, tbm, fi);
+		b.saveBase(new File("Mar.songBase"));
 		Song song = b.generateSong(25 * b.getRes() * 4, 2);
 		song.setInstrument(ProgramChange.MidiProgram.TRUMPET);
 		song.write(new File("out.mid"), b.getRes());

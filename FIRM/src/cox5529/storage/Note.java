@@ -1,13 +1,16 @@
 package cox5529.storage;
 
+import java.io.Serializable;
+
 /**
  * Object used to store Notes within songs.
  * 
  * @author Brandon Cox
  * 		
  */
-public class Note {
+public class Note implements Serializable{
 	
+	private static final long serialVersionUID = 5113749444335308737L;
 	private int pitch;
 	private int duration;
 	

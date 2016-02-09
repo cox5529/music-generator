@@ -1,5 +1,6 @@
 package cox5529.storage;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -8,8 +9,9 @@ import java.util.ArrayList;
  * @author Brandon Cox
  *		
  */
-public class Measure {
+public class Measure implements Serializable{
 	
+	private static final long serialVersionUID = -5820991278802131168L;
 	private ArrayList<Long> notes;
 	
 	/**

@@ -1,8 +1,13 @@
 package cox5529;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,8 +32,9 @@ import cox5529.storage.Song;
  * 
  * @author Brandon Cox
  */
-public class Base {
+public class Base implements Serializable {
 	
+	private static final long serialVersionUID = 3954399902682584882L;
 	private ArrayList<Measure> measures;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
 	private ArrayList<Float> tempo;
@@ -37,8 +43,10 @@ public class Base {
 	/**
 	 * Creates a list of every note in the given songs. Creates the basis of the algorithm to compose songs.
 	 * 
-	 * @param depth The depth to scan when generating the song.
-	 * @param songs The songs to create the base from.
+	 * @param depth
+	 *            The depth to scan when generating the song.
+	 * @param songs
+	 *            The songs to create the base from.
 	 */
 	public Base(int depth, File... songs) { // needs to import all songs into the
 											// bases array.
@@ -155,8 +163,10 @@ public class Base {
 	/**
 	 * Generates a song based on a given length and depth
 	 * 
-	 * @param length The length of the generated song.
-	 * @param depth The depth of the generated song.
+	 * @param length
+	 *            The length of the generated song.
+	 * @param depth
+	 *            The depth of the generated song.
 	 * @return The generated song.
 	 */
 	public Song generateSong(int length, int depth) {
@@ -212,6 +222,52 @@ public class Base {
 			}
 		}
 		return s;
+	}
+	
+	/**
+	 * Reads in a serialized base from a given file.
+	 * 
+	 * @param f
+	 *            The file to read from.
+	 * @return The Base object read.
+	 */
+	public static Base readBase(File f) {
+		Base re = null;
+		try {
+			FileInputStream fin = new FileInputStream(f);
+			ObjectInputStream in = new ObjectInputStream(fin);
+			re = (Base) in.readObject();
+			in.close();
+			fin.close();
+			return re;
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
+		} catch(ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		return re;
+	}
+	
+	/**
+	 * Serializes this base to a file.
+	 * 
+	 * @param f
+	 *            The file to serialize to.
+	 */
+	public void saveBase(File f) {
+		try {
+			FileOutputStream os = new FileOutputStream(f);
+			ObjectOutputStream out = new ObjectOutputStream(os);
+			out.writeObject(this);
+			out.close();
+			os.close();
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

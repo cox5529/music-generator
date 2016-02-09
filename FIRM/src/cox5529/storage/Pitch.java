@@ -1,5 +1,6 @@
 package cox5529.storage;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -9,8 +10,9 @@ import java.util.HashMap;
  * @author Brandon Cox
  * 		
  */
-public class Pitch {
+public class Pitch implements Serializable{
 	
+	private static final long serialVersionUID = -1238593192399516331L;
 	private ArrayList<Integer> p;
 	private ArrayList<Integer> follow;
 	
