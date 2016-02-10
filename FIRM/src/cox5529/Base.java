@@ -197,11 +197,13 @@ public class Base implements Serializable {
 	 *            The length of the generated song.
 	 * @param depth
 	 *            The depth of the generated song.
+	 * @param acc
+	 *            The amount of flats (negative number) or sharps (positive number) in the key signature.
 	 * @return The generated song.
 	 * @throws NullPointerException
 	 *             If there are not enough notes given for the given depth.
 	 */
-	public Song generateSong(int length, int depth) throws NullPointerException {
+	public Song generateSong(int length, int depth, int acc) throws NullPointerException {
 		Song s = new Song();
 		if(pitchFollow.keySet().size() == 0 || pitchFollow.keySet().size() == 1)
 			return null;
@@ -218,8 +220,9 @@ public class Base implements Serializable {
 		s.setTempo(tempo.get(0));
 		while(dur < length) {
 			if(noteDur > 0) {
-				System.out.println("DURATION: " + dur + "\tNOTE: " + notePitch + "\tNOTEDUR: " + noteDur);
-				s.playNote(0, notePitch, 127, dur, noteDur);
+				int n = Song.transpose(notePitch, 0, acc);
+				System.out.println("DURATION: " + dur + "\tNOTE: " + n + "\tNOTEDUR: " + noteDur);
+				s.playNote(0, n, 127, dur, noteDur);
 			} else {
 				System.out.println("REST AT:  " + dur + "\t\t\tNOTEDUR: " + noteDur);
 			}

@@ -253,4 +253,47 @@ public class Song {
 		}
 	}
 	
+	/**
+	 * Transposes a note from an old key to a new key.
+	 * 
+	 * @param pitch
+	 *            The pitch to transpose.
+	 * @param oldAcc
+	 *            The amount of flats (negative number) or sharps (positive number) in the old key signature.
+	 * @param acc
+	 *            The amount of flats (negative number) or sharps (positive number) in the new key signature.
+	 * @return The transposed pitch.
+	 */
+	public static int transpose(int pitch, int oldAcc, int acc) {
+		pitch = transpose(pitch, oldAcc);
+		int note = pitch % 12;
+		int re = pitch;
+		if(acc == 1 && note == 5)
+			re = pitch + 1;
+		else if(acc == 2 && (note == 5 || note == 0))
+			re = pitch + 1;
+		else if(acc == 3 && (note == 5 || note == 0 || note == 7))
+			re = pitch + 1;
+		else if(acc == 4 && (note == 5 || note == 0 || note == 7 && note == 2))
+			re = pitch + 1;
+		else if(acc == 5 && (note == 5 || note == 0 || note == 7 && note == 2 || note == 9))
+			re = pitch + 1;
+		else if(acc == 6 && (note == 5 || note == 0 || note == 7 || note == 2 || note == 9 || note == 4))
+			re = pitch + 1;
+		else if(acc == -1 && note == 11)
+			re = pitch - 1;
+		else if(acc == -2 && (note == 11 || note == 4))
+			re = pitch - 1;
+		else if(acc == -3 && (note == 11 || note == 4 || note == 9))
+			re = pitch - 1;
+		else if(acc == -4 && (note == 11 || note == 4 || note == 9 || note == 2))
+			re = pitch - 1;
+		else if(acc == -5 && (note == 11 || note == 4 || note == 9 || note == 2 || note == 7))
+			re = pitch - 1;
+		else if(acc == -6 && (note == 11 || note == 4 || note == 9 || note == 2 || note == 7 || note == 0))
+			re = pitch - 1;
+		System.out.println(pitch + ": " + re);
+		return re;
+	}
+	
 }

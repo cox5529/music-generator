@@ -14,10 +14,10 @@ import cox5529.storage.Song;
  */
 public class Main {
 	
-	private static void writeSong(int depth, String f) {
+	private static void writeSong(int depth, String f, int acc) {
 		Base b = Base.readBase(new File(f + ".songBase"));
-		Song s = b.generateSong(65536, depth);
-		s.setInstrument(ProgramChange.MidiProgram.ACOUSTIC_GRAND_PIANO);
+		Song s = b.generateSong(65536, depth, acc);
+		s.setInstrument(ProgramChange.MidiProgram.TRUMPET);
 		s.write(new File(f + ".mid"), b.getRes());
 	}
 	
@@ -38,19 +38,19 @@ public class Main {
 			if(!f.exists())
 				f.mkdir();
 			// new Base(2, tbm).saveBase(new File("Depth of " + i + "\\Three Blind Mice.songBase"));
-			writeSong(i, "Depth of " + i + "\\Three Blind Mice");
+			writeSong(i, "Depth of " + i + "\\Three Blind Mice", -3);
 			// new Base(i, mar).saveBase(new File("Depth of " + i + "\\Mario Theme.songBase"));
-			writeSong(i, "Depth of " + i + "\\Mario Theme");
+			writeSong(i, "Depth of " + i + "\\Mario Theme", -3);
 			// new Base(i, fi).saveBase(new File("Depth of " + i + "\\Fiesta.songBase"));
-			writeSong(i, "Depth of " + i + "\\Fiesta");
+			writeSong(i, "Depth of " + i + "\\Fiesta", -3);
 			// new Base(i, tbm, mar).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario.songBase"));
-			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Mario");
+			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Mario", -3);
 			// new Base(i, tbm, fi).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta.songBase"));
-			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta");
+			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta", -3);
 			// new Base(i, mar, fi).saveBase(new File("Depth of " + i + "\\Mario_AND_Fiesta.songBase"));
-			writeSong(i, "Depth of " + i + "\\Mario_AND_Fiesta");
+			writeSong(i, "Depth of " + i + "\\Mario_AND_Fiesta", -3);
 			// new Base(i, tbm, mar, fi).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta.songBase"));
-			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta");
+			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta", -3);
 		}
 		
 		// INTRO
