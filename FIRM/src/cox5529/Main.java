@@ -14,11 +14,11 @@ import cox5529.storage.Song;
  */
 public class Main {
 	
-	private static void writeSong(int depth, File f) {
-		Base b = Base.readBase(f);
+	private static void writeSong(int depth, String f) {
+		Base b = Base.readBase(new File(f + ".songBase"));
 		Song s = b.generateSong(65536, depth);
 		s.setInstrument(ProgramChange.MidiProgram.ACOUSTIC_GRAND_PIANO);
-		s.write(f, b.getRes());
+		s.write(new File(f + ".mid"), b.getRes());
 	}
 	
 	/**
@@ -37,29 +37,22 @@ public class Main {
 			File f = new File("Depth of " + i);
 			if(!f.exists())
 				f.mkdir();
-			new Base(2, tbm).saveBase(new File("Depth of " + i + "\\Three Blind Mice.songBase"));
-			new Base(i, mar).saveBase(new File("Depth of " + i + "\\Mario Theme.songBase"));
-			new Base(i, fi).saveBase(new File("Depth of " + i + "\\Fiesta.songBase"));
-			new Base(i, tbm, mar).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario.songBase"));
-			new Base(i, tbm, fi).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta.songBase"));
-			new Base(i, mar, fi).saveBase(new File("Depth of " + i + "\\Mario_AND_Fiesta.songBase"));
-			new Base(i, tbm, mar, fi).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta.songBase"));
-			
+			// new Base(2, tbm).saveBase(new File("Depth of " + i + "\\Three Blind Mice.songBase"));
+			writeSong(i, "Depth of " + i + "\\Three Blind Mice");
+			// new Base(i, mar).saveBase(new File("Depth of " + i + "\\Mario Theme.songBase"));
+			writeSong(i, "Depth of " + i + "\\Mario Theme");
+			// new Base(i, fi).saveBase(new File("Depth of " + i + "\\Fiesta.songBase"));
+			writeSong(i, "Depth of " + i + "\\Fiesta");
+			// new Base(i, tbm, mar).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario.songBase"));
+			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Mario");
+			// new Base(i, tbm, fi).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta.songBase"));
+			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta");
+			// new Base(i, mar, fi).saveBase(new File("Depth of " + i + "\\Mario_AND_Fiesta.songBase"));
+			writeSong(i, "Depth of " + i + "\\Mario_AND_Fiesta");
+			// new Base(i, tbm, mar, fi).saveBase(new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta.songBase"));
+			writeSong(i, "Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta");
 		}
-		// key
-		// transpose
 		
-		// write new song
-		
-		for(int i = 2; i <= 2; i++) {
-			writeSong(i, new File("Depth of " + i + "\\Three Blind Mice.songBase"));
-			writeSong(i, new File("Depth of " + i + "\\Mario Theme.songBase"));
-			writeSong(i, new File("Depth of " + i + "\\Fiesta.songBase"));
-			writeSong(i, new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario.songBase"));
-			writeSong(i, new File("Depth of " + i + "\\Three_Blind_Mice_AND_Fiesta.songBase"));
-			writeSong(i, new File("Depth of " + i + "\\Mario_AND_Fiesta.songBase"));
-			writeSong(i, new File("Depth of " + i + "\\Three_Blind_Mice_AND_Mario_AND_Fiesta.songBase"));
-		}
 		// INTRO
 		// why is it important
 		// what are you doing
@@ -79,11 +72,3 @@ public class Main {
 		// future research
 	}
 }
-
-// Read probability of a note of a specific type and pitch following another note
-// Used Math.random() to generate a song based on that
-
-// read in bars at a time rather than just notes for duration calculation
-// increase library
-// read in 2 notes at a time rather than just one for pitch calculation
-// make measures work...
