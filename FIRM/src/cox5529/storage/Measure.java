@@ -7,9 +7,9 @@ import java.util.ArrayList;
  * Class used to store Measures within read songs.
  * 
  * @author Brandon Cox
- *		
+ * 		
  */
-public class Measure implements Serializable{
+public class Measure implements Serializable {
 	
 	private static final long serialVersionUID = -5820991278802131168L;
 	private ArrayList<Long> notes;
@@ -17,7 +17,8 @@ public class Measure implements Serializable{
 	/**
 	 * Constructs a measure object using the notes within the measure.
 	 * 
-	 * @param notes The notes within the measure in the order in which they are played.
+	 * @param notes
+	 *            The notes within the measure in the order in which they are played.
 	 */
 	public Measure(ArrayList<Long> notes) {
 		this.notes = notes;
