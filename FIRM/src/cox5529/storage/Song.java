@@ -37,7 +37,8 @@ public class Song {
 	/**
 	 * Sets the instrument of the given Track object.
 	 * 
-	 * @param intstrument The instrument number to change the track to.
+	 * @param intstrument
+	 *            The instrument number to change the track to.
 	 */
 	public void setInstrument(MidiProgram intstrument) {
 		song.insertEvent(new ProgramChange(0, 0, intstrument.programNumber()));
@@ -46,7 +47,8 @@ public class Song {
 	/**
 	 * Sets the tempo based on a give BPM count.
 	 * 
-	 * @param tempo The BPM to set the tempo to.
+	 * @param tempo
+	 *            The BPM to set the tempo to.
 	 */
 	public void setTempo(float tempo) {
 		Tempo t = new Tempo();
@@ -64,8 +66,10 @@ public class Song {
 	/**
 	 * Sets the time signature to num/den time at the beginning of the song.
 	 * 
-	 * @param num The numerator of the time signature.
-	 * @param den The denominator of the time signature.
+	 * @param num
+	 *            The numerator of the time signature.
+	 * @param den
+	 *            The denominator of the time signature.
 	 */
 	public void setTimeSignature(int num, int den) {
 		meta.insertEvent(new TimeSignature(0, 0, num, den, TimeSignature.DEFAULT_METER, TimeSignature.DEFAULT_DIVISION));
@@ -74,11 +78,16 @@ public class Song {
 	/**
 	 * Adds a note to the song.
 	 * 
-	 * @param channel The channel to play the note on.
-	 * @param pitch The pitch to play.
-	 * @param vel The velocity of the note.
-	 * @param tick The tick to start the note at.
-	 * @param dur The duration of the note.
+	 * @param channel
+	 *            The channel to play the note on.
+	 * @param pitch
+	 *            The pitch to play.
+	 * @param vel
+	 *            The velocity of the note.
+	 * @param tick
+	 *            The tick to start the note at.
+	 * @param dur
+	 *            The duration of the note.
 	 */
 	public void playNote(int channel, int pitch, int vel, long tick, long dur) {
 		song.insertNote(channel, pitch, vel, tick, dur);
@@ -87,8 +96,10 @@ public class Song {
 	/**
 	 * Writes the song to the specified file.
 	 * 
-	 * @param out File to write the song to. File must end in .mid.
-	 * @param res The resolution of the MIDI file.
+	 * @param out
+	 *            File to write the song to. File must end in .mid.
+	 * @param res
+	 *            The resolution of the MIDI file.
 	 */
 	public void write(File out, int res) {
 		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
@@ -105,7 +116,8 @@ public class Song {
 	/**
 	 * Writes the song to the specified file using Song.DEFAULT_MIDI_RESOLUTION as the resolution.
 	 * 
-	 * @param out File to write the song to. File must end in .mid.
+	 * @param out
+	 *            File to write the song to. File must end in .mid.
 	 */
 	public void write(File out) {
 		ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
@@ -122,7 +134,8 @@ public class Song {
 	/**
 	 * Generates an array of 7 notes (an octave) in a minor key.
 	 * 
-	 * @param start The starting note of the octave.
+	 * @param start
+	 *            The starting note of the octave.
 	 * @return An array of 7 notes in key.
 	 */
 	public static int[] generateMinorOctave(int start) {
@@ -140,7 +153,8 @@ public class Song {
 	/**
 	 * Generates an array of 7 notes (an octave) in a major key.
 	 * 
-	 * @param start The starting note of the octave.
+	 * @param start
+	 *            The starting note of the octave.
 	 * @return An array of 7 notes in key.
 	 */
 	public static int[] generateMajorOctave(int start) {
@@ -158,7 +172,8 @@ public class Song {
 	/**
 	 * Generates an array of all 12 notes up to an octave above start.
 	 * 
-	 * @param start The starting note of the octave.
+	 * @param start
+	 *            The starting note of the octave.
 	 * @return An array of 12 notes in key.
 	 */
 	public static int[] generateChromaticOctave(int start) {
@@ -167,6 +182,35 @@ public class Song {
 			re[i] = start + i;
 		}
 		return re;
+	}
+	
+	/**
+	 * Transposes the given note to C Major.
+	 * 
+	 * @param pitch
+	 *            The pitch to transpose.
+	 * @param acc
+	 *            The amount of flats (negative number) or sharps (positive number) in the key signature.
+	 * @return The transposed note.
+	 */
+	public static int transpose(int pitch, int acc) {
+		int oct = pitch / 12;
+		int note = pitch % 12; // C0 = 0
+		// Flat order = BEADGCF
+		// Sharp order = FCGDAEB
+		
+		// see if the note neeeds to be transposed at all
+		int[] key = generateMajorOctave(oct * 12); // generate major octave based on C in the given octave
+		for(int i = 0; i < key.length; i++) {
+			if(key[i] == pitch) {
+				return pitch; // if the note is in key, return the note
+			}
+		}
+		if(acc > 0) { // if there are sharps transpose down
+			return pitch - 1;
+		} else {
+			return pitch + 1;
+		}
 	}
 	
 }

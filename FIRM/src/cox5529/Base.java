@@ -17,9 +17,11 @@ import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.NoteOn;
+import com.leff.midi.event.meta.KeySignature;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.util.MidiProcessor;
 
+import cox5529.listeners.KeySignatureListener;
 import cox5529.listeners.NoteListener;
 import cox5529.listeners.NoteOffListener;
 import cox5529.listeners.TempoListener;
@@ -71,10 +73,31 @@ public class Base implements Serializable {
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
-			NoteListener nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks());
+			KeySignatureListener ks = new KeySignatureListener();
+			
+			proc.registerEventListener(ks, KeySignature.class);
+			
+			proc.start();
+			while(proc.isRunning()) {
+				try {
+					Thread.sleep(1);
+				} catch(InterruptedException e) {
+					e.printStackTrace();
+				}
+				if(ks.isInit())
+					break;
+			}
+			proc.stop();
+			try {
+				Thread.sleep(500);
+			} catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+			NoteListener nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks(), ks.getFlats());
 			NoteOffListener no = new NoteOffListener(mFile.getLengthInTicks());
 			TempoListener tl = new TempoListener();
 			
+			proc.unregisterAllEventListeners();
 			proc.registerEventListener(nl, NoteOn.class);
 			proc.registerEventListener(tl, Tempo.class);
 			proc.registerEventListener(no, NoteOff.class);
@@ -88,6 +111,7 @@ public class Base implements Serializable {
 				}
 			}
 			proc.stop();
+			
 			// combine pitchFollows
 			HashMap<ArrayList<Integer>, Pitch> newFollow = nl.getPitchFollow();
 			Iterator<Entry<ArrayList<Integer>, Pitch>> it = newFollow.entrySet().iterator();
@@ -169,7 +193,7 @@ public class Base implements Serializable {
 	 *            The depth of the generated song.
 	 * @return The generated song.
 	 */
-	public Song generateSong(int length, int depth) {
+	public Song generateSong(int length, int depth) throws NullPointerException {
 		Song s = new Song();
 		if(pitchFollow.keySet().size() == 0 || pitchFollow.keySet().size() == 1)
 			return null;
@@ -200,6 +224,8 @@ public class Base implements Serializable {
 			}
 			if(noteDur > 0) {
 				Pitch p = pitchFollow.get(notePitchKey);
+				if(p == null)
+					throw new NullPointerException("Your depth is too high for the given information.");
 				HashMap<Integer, Double> pct = p.calcPercentage();
 				rand = Math.random();
 				Iterator<Entry<Integer, Double>> it = pct.entrySet().iterator();

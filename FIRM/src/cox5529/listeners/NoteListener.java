@@ -9,6 +9,7 @@ import com.leff.midi.event.NoteOn;
 import com.leff.midi.util.MidiEventListener;
 
 import cox5529.storage.Pitch;
+import cox5529.storage.Song;
 
 /**
  * Listener used to listen for NoteOn events.
@@ -24,21 +25,28 @@ public class NoteListener extends Listener implements MidiEventListener {
 	private ArrayList<Long> endings;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
 	private long size;
+	private int acc;
 	
 	/**
 	 * Constructs a NoteListener object.
 	 * 
-	 * @param depth The depth to scan for pitches.
-	 * @param ticksPerMeasure The amount of ticks per measure.
-	 * @param size The length in ticks of the song.
+	 * @param depth
+	 *            The depth to scan for pitches.
+	 * @param ticksPerMeasure
+	 *            The amount of ticks per measure.
+	 * @param size
+	 *            The length in ticks of the song.
+	 * @param acc
+	 *            The amount of flats (negative number) or sharps (positive number) in the key signature.
 	 */
-	public NoteListener(int depth, int ticksPerMeasure, long size) {
+	public NoteListener(int depth, int ticksPerMeasure, long size, int acc) {
 		super(size);
 		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
 		endings = new ArrayList<Long>();
 		starts = new ArrayList<Long>();
 		this.depth = depth;
 		this.size = size;
+		this.acc = acc;
 	}
 	
 	/**
@@ -65,7 +73,7 @@ public class NoteListener extends Listener implements MidiEventListener {
 			NoteOn no = (NoteOn) event;
 			if(no.getVelocity() != 0) {
 				// pitch stuff
-				int pitch = no.getNoteValue();
+				int pitch = Song.transpose(no.getNoteValue(), acc);
 				if(follow == null)
 					follow = new ArrayList<Integer>();
 				else if(follow.size() == depth) {

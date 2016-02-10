@@ -21,19 +21,52 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-		// Song s = Base.importMidi(new File("smb1-Theme.mid"));
-		File[] s = new File[8];
-		for(int i = 0; i < s.length; i++) {
-			s[i] = new File("m" + (i + 1) + ".mid");
-		}
 		File fi = new File("Fiesta.mid");
 		File tbm = new File("tbm.mid");
 		File mar = new File("mario.mid");
-		Base b = new Base(2, mar, tbm, fi);
-		b.saveBase(new File("Mar.songBase"));
-		Song song = b.generateSong(25 * b.getRes() * 4, 2);
-		song.setInstrument(ProgramChange.MidiProgram.TRUMPET);
-		song.write(new File("out.mid"), b.getRes());
+		
+		// generate songbases
+		for(int i = 1; i <= 4; i++) {
+			File f = new File("Depth of " + i);
+			if(!f.exists())
+				f.mkdir();
+			new Base(i, tbm).saveBase(new File("Depth of " + i + "\\Three Blind Mice.songBase"));
+			// new Base(i, mar).saveBase(new File("Depth of " + i + "\\Mario Theme.songBase"));
+			// new Base(i, fi).saveBase(new File("/" + i + "/Fiesta.songBase"));
+			// new Base(i, tbm, mar).saveBase(new File("/" + i + "/Three Blind Mice and Mario Theme.songBase"));
+			// new Base(i, tbm, fi).saveBase(new File("/" + i + "/Three Blind Mice and Fiesta.songBase"));
+			// new Base(i, mar, fi).saveBase(new File("/" + i + "/Mario Theme and Fiesta.songBase"));
+			// new Base(i, tbm, mar, fi).saveBase(new File("/" + i + "/Three Blind Mice and Mario Theme and Fiesta.songBase"));
+			
+		}
+		// key
+		// transpose
+		
+		// write new song
+		
+		for(int i = 1; i <= 4; i++) {
+			Base b = Base.readBase(new File("Depth of " + i + "\\Three Blind Mice.songBase"));
+			Song s = b.generateSong(65536, i);
+			s.setInstrument(ProgramChange.MidiProgram.TRUMPET);
+			s.write(new File("Depth of " + i + "\\Out Three Blind Mice.mid"), b.getRes());
+		}
+		// INTRO
+		// why is it important
+		// what are you doing
+		// tell a story as to what is currently being done, what are people currently doing, etc. (5 para.)
+		// make sure you cite
+		// hypothesis (what is success)
+		// intro to procedures
+		
+		// PROCEDURES
+		// what are you going to do
+		// data analysis
+		
+		// CONCLUSION
+		// summarize everything
+		// make conclusions
+		// what are error sources/problems
+		// future research
 	}
 }
 
