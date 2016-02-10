@@ -185,6 +185,45 @@ public class Song {
 	}
 	
 	/**
+	 * Determines if a note is an accidental.
+	 * 
+	 * @param pitch
+	 *            The pitch to check.
+	 * @param acc
+	 *            The amount of flats (negative number) or sharps (positive number) in the key signature.
+	 * @return True if the note is an accidental, false if it is not.
+	 */
+	public static boolean isAccidental(int pitch, int acc) {
+		int note = pitch % 12;
+		if(acc == 1 && note != 6)
+			return true;
+		if(acc == 2 && (note != 6 && note != 1))
+			return true;
+		if(acc == 3 && (note != 6 && note != 1 && note != 8))
+			return true;
+		if(acc == 4 && (note != 6 && note != 1 && note != 8 && note != 3))
+			return true;
+		if(acc == 5 && (note != 6 && note != 1 && note != 8 && note != 3 && note != 10))
+			return true;
+		if(acc == 6 && (note != 6 && note != 1 && note != 8 && note != 3 && note != 10 && note != 5)) {
+			return true;
+		}
+		if(acc == -1 && note != 10)
+			return true;
+		if(acc == -2 && (note != 10 && note != 3))
+			return true;
+		if(acc == -3 && (note != 10 && note != 3 && note != 8))
+			return true;
+		if(acc == -4 && (note != 10 && note != 3 && note != 8 && note != 1))
+			return true;
+		if(acc == -5 && (note != 10 && note != 3 && note != 8 && note != 1 && note != 6))
+			return true;
+		if(acc == -6 && (note != 10 && note != 3 && note != 8 && note != 1 && note != 6 && note != 11))
+			return true;
+		return false;
+	}
+	
+	/**
 	 * Transposes the given note to C Major.
 	 * 
 	 * @param pitch
@@ -194,19 +233,20 @@ public class Song {
 	 * @return The transposed note.
 	 */
 	public static int transpose(int pitch, int acc) {
+		if(isAccidental(pitch, acc))
+			return pitch;
 		int oct = pitch / 12;
-		int note = pitch % 12; // C0 = 0
 		// Flat order = BEADGCF
 		// Sharp order = FCGDAEB
-		
-		// see if the note neeeds to be transposed at all
+		// see if the note needs to be transposed at all
 		int[] key = generateMajorOctave(oct * 12); // generate major octave based on C in the given octave
 		for(int i = 0; i < key.length; i++) {
 			if(key[i] == pitch) {
+				
 				return pitch; // if the note is in key, return the note
 			}
 		}
-		if(acc > 0) { // if there are sharps transpose down
+		if(acc < 0) { // if there are sharps transpose down
 			return pitch - 1;
 		} else {
 			return pitch + 1;

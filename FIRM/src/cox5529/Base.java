@@ -73,9 +73,12 @@ public class Base implements Serializable {
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
+			
+			TempoListener tl = new TempoListener();
 			KeySignatureListener ks = new KeySignatureListener();
 			
 			proc.registerEventListener(ks, KeySignature.class);
+			proc.registerEventListener(tl, Tempo.class);
 			
 			proc.start();
 			while(proc.isRunning()) {
@@ -88,24 +91,25 @@ public class Base implements Serializable {
 					break;
 			}
 			proc.stop();
+			
 			try {
 				Thread.sleep(500);
-			} catch(InterruptedException e) {
-				e.printStackTrace();
+			} catch(InterruptedException e1) {
+				e1.printStackTrace();
 			}
-			NoteListener nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks(), ks.getFlats());
-			NoteOffListener no = new NoteOffListener(mFile.getLengthInTicks());
-			TempoListener tl = new TempoListener();
+			proc.reset();
 			
 			proc.unregisterAllEventListeners();
+			NoteListener nl = new NoteListener(depth, res * 4, mFile.getLengthInTicks(), ks.getFlats());
+			NoteOffListener no = new NoteOffListener(mFile.getLengthInTicks());
+			
 			proc.registerEventListener(nl, NoteOn.class);
-			proc.registerEventListener(tl, Tempo.class);
 			proc.registerEventListener(no, NoteOff.class);
 			
 			proc.start();
 			while(proc.isRunning()) {
 				try {
-					Thread.sleep(1);
+					Thread.sleep(100);
 				} catch(InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -166,9 +170,11 @@ public class Base implements Serializable {
 			}
 		}
 		
-		/*
-		 * if(!cur.isEmpty()) { cur.add(res * 4 - length); measures.add(new Measure(cur)); }
-		 */
+		if(!cur.isEmpty()) {
+			cur.add(length - 4 * res);
+			measures.add(new Measure(cur));
+		}
+		
 	}
 	
 	/**
@@ -192,6 +198,8 @@ public class Base implements Serializable {
 	 * @param depth
 	 *            The depth of the generated song.
 	 * @return The generated song.
+	 * @throws NullPointerException
+	 *             If there are not enough notes given for the given depth.
 	 */
 	public Song generateSong(int length, int depth) throws NullPointerException {
 		Song s = new Song();
@@ -199,6 +207,7 @@ public class Base implements Serializable {
 			return null;
 		long dur = 0;
 		int index = 0;
+		@SuppressWarnings("unchecked")
 		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[(int) (Math.random() * pitchFollow.size())]);
 		ArrayList<Integer> follow = notePitchKey;
 		long[] measure = getRandomMeasure().generateMeasure();
