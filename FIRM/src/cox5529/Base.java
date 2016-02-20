@@ -40,7 +40,10 @@ public class Base implements Serializable {
 	private ArrayList<Measure> measures;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
 	private ArrayList<Float> tempo;
+	private int[] degreeTable;
+	private int[] metricTable;
 	private int res;
+	private long originalLength;
 	
 	/**
 	 * Creates a list of every note in the given songs. Creates the basis of the algorithm to compose songs.
@@ -57,12 +60,16 @@ public class Base implements Serializable {
 		ArrayList<Long> endings = new ArrayList<Long>();
 		ArrayList<Long> starts = new ArrayList<Long>();
 		measures = new ArrayList<Measure>();
+		degreeTable = new int[12];
+		metricTable = new int[16];
+		originalLength = 0;
 		
 		for(int i = 0; i < songs.length; i++) {
 			MidiFile mFile = null;
 			MidiProcessor proc = null;
 			try {
 				mFile = new MidiFile(songs[i]);
+				originalLength += mFile.getLengthInTicks();
 				res = mFile.getResolution();
 				ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
 				tracks.add(mFile.getTracks().get(0));
@@ -116,6 +123,11 @@ public class Base implements Serializable {
 			}
 			proc.stop();
 			
+			ArrayList<Integer> pitches = nl.getPitches();
+			for(int j = 0; j < pitches.size(); j++) {
+				degreeTable[Song.getScaleDegree(pitches.get(j))]++;
+			}
+			
 			// combine pitchFollows
 			HashMap<ArrayList<Integer>, Pitch> newFollow = nl.getPitchFollow();
 			Iterator<Entry<ArrayList<Integer>, Pitch>> it = newFollow.entrySet().iterator();
@@ -147,6 +159,7 @@ public class Base implements Serializable {
 			dur = (endings.get(i) - starts.get(i));
 			// System.out.println(dur + ":\t" + starts.get(i) + "\t" + endings.get(i) + "\t" + length);
 			cur.add(dur);
+			metricTable[Song.getBeat(length, res)]++;
 			length += Math.abs(dur);
 			if(length >= res * 4) { // end of measure
 				length = 0;
@@ -178,6 +191,33 @@ public class Base implements Serializable {
 	}
 	
 	/**
+	 * Gets the original length of the input songs.
+	 * 
+	 * @return The original length of the input songs.
+	 */
+	public long getOriginalLength() {
+		return originalLength;
+	}
+	
+	/**
+	 * Gets the table of degrees within the input song.
+	 * 
+	 * @return The degree table
+	 */
+	public int[] getDegreeTable() {
+		return degreeTable;
+	}
+	
+	/**
+	 * Gets the table of measure indices within the input song.
+	 * 
+	 * @return The table
+	 */
+	public int[] getMetricTable() {
+		return metricTable;
+	}
+	
+	/**
 	 * Gets the resolution of the Base file.
 	 * 
 	 * @return The resolution.
@@ -203,12 +243,14 @@ public class Base implements Serializable {
 	 * @throws NullPointerException
 	 *             If there are not enough notes given for the given depth.
 	 */
-	public Song generateSong(int length, int depth, int acc) throws NullPointerException {
+	public Song generateSong(long length, int depth, int acc) throws NullPointerException {
 		Song s = new Song();
 		if(pitchFollow.keySet().size() == 0 || pitchFollow.keySet().size() == 1)
 			return null;
 		long dur = 0;
 		int index = 0;
+		metricTable = new int[16];
+		degreeTable = new int[12];
 		@SuppressWarnings("unchecked")
 		ArrayList<Integer> notePitchKey = (ArrayList<Integer>) (pitchFollow.keySet().toArray()[(int) (Math.random() * pitchFollow.size())]);
 		ArrayList<Integer> follow = notePitchKey;
@@ -220,6 +262,8 @@ public class Base implements Serializable {
 		s.setTempo(tempo.get(0));
 		while(dur < length) {
 			if(noteDur > 0) {
+				degreeTable[Song.getScaleDegree(notePitch)]++;
+				metricTable[Song.getBeat(dur % (res * 4), res)]++;
 				int n = Song.transpose(notePitch, 0, acc);
 				System.out.println("DURATION: " + dur + "\tNOTE: " + n + "\tNOTEDUR: " + noteDur);
 				s.playNote(0, n, 127, dur, noteDur);

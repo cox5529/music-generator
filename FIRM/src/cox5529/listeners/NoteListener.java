@@ -24,6 +24,7 @@ public class NoteListener extends Listener implements MidiEventListener {
 	private ArrayList<Integer> follow;
 	private ArrayList<Long> endings;
 	private HashMap<ArrayList<Integer>, Pitch> pitchFollow;
+	private ArrayList<Integer> pitches;
 	private long size;
 	private int acc;
 	
@@ -42,11 +43,21 @@ public class NoteListener extends Listener implements MidiEventListener {
 	public NoteListener(int depth, int ticksPerMeasure, long size, int acc) {
 		super(size);
 		pitchFollow = new HashMap<ArrayList<Integer>, Pitch>();
+		pitches = new ArrayList<Integer>();
 		endings = new ArrayList<Long>();
 		starts = new ArrayList<Long>();
 		this.depth = depth;
 		this.size = size;
 		this.acc = acc;
+	}
+	
+	/**
+	 * Gets the pitches within the song.
+	 * 
+	 * @return The pitches.
+	 */
+	public ArrayList<Integer> getPitches() {
+		return pitches;
 	}
 	
 	/**
@@ -74,6 +85,7 @@ public class NoteListener extends Listener implements MidiEventListener {
 			if(no.getVelocity() != 0) {
 				// pitch stuff
 				int pitch = Song.transpose(no.getNoteValue(), acc);
+				pitches.add(pitch);
 				if(follow == null)
 					follow = new ArrayList<Integer>();
 				else if(follow.size() == depth) {

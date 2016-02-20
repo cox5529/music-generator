@@ -296,4 +296,28 @@ public class Song {
 		return re;
 	}
 	
+	/**
+	 * Gets the scale degree of a given note.
+	 * 
+	 * @param note
+	 *            The note to get the scale degree of.
+	 * @return The scale degree of the note.
+	 */
+	public static int getScaleDegree(int note) {
+		return (note) % 12;
+	}
+	
+	/**
+	 * Gets the beat within the measure a note occurs on.
+	 * 
+	 * @param resolution
+	 *            The resolution of the input note.
+	 * @param tickInMeasure
+	 *            The tick within the measure the note occurs on.
+	 * @return The beat within the measure * 4.
+	 */
+	public static int getBeat(long tickInMeasure, long resolution) {
+		return (int) ((tickInMeasure * 4) / resolution);
+	}
+	
 }
